@@ -1,0 +1,7 @@
+split,label,stain,count
+test,negative,unknown,22
+test,positive,unknown,63
+train,negative,unknown,103
+train,positive,unknown,296
+val,negative,unknown,22
+val,positive,unknown,63
