@@ -16,3 +16,4 @@ docs/
 uv.lock
 
 crop_outputs/
+stage4_outputs/
