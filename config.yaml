@@ -1,0 +1,7 @@
+dataset:
+  root: datasets
+  positive: Positive
+  negative: Negative
+  negative_clear: Negative/Clear
+  labelled: Positive/Labelled
+  unlabelled: Positive/Unlabelled
