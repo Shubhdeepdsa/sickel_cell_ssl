@@ -14,3 +14,5 @@ wheels/
 datasets/
 docs/
 uv.lock
+
+crop_outputs/
