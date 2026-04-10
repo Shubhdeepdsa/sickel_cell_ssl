@@ -203,10 +203,18 @@ class SimCLRDataset(Dataset):
         return view_1, view_2
 
 
-def train_transform(image_size: int) -> transforms.Compose:
+def maybe_grayscale_transform(grayscale: bool) -> list[transforms.Transform]:
+    if not grayscale:
+        return []
+    # Keep a 3-channel tensor so the architecture and ImageNet weights stay unchanged.
+    return [transforms.Grayscale(num_output_channels=3)]
+
+
+def train_transform(image_size: int, grayscale: bool = False) -> transforms.Compose:
     return transforms.Compose(
         [
             transforms.Resize((image_size, image_size)),
+            *maybe_grayscale_transform(grayscale),
             transforms.RandomHorizontalFlip(),
             transforms.RandomVerticalFlip(),
             transforms.RandomRotation(180),
@@ -217,20 +225,22 @@ def train_transform(image_size: int) -> transforms.Compose:
     )
 
 
-def eval_transform(image_size: int) -> transforms.Compose:
+def eval_transform(image_size: int, grayscale: bool = False) -> transforms.Compose:
     return transforms.Compose(
         [
             transforms.Resize((image_size, image_size)),
+            *maybe_grayscale_transform(grayscale),
             transforms.ToTensor(),
             transforms.Normalize(IMAGENET_MEAN, IMAGENET_STD),
         ]
     )
 
 
-def simclr_transform(image_size: int) -> transforms.Compose:
+def simclr_transform(image_size: int, grayscale: bool = False) -> transforms.Compose:
     return transforms.Compose(
         [
             transforms.RandomResizedCrop(image_size, scale=(0.55, 1.0), ratio=(0.8, 1.25)),
+            *maybe_grayscale_transform(grayscale),
             transforms.RandomHorizontalFlip(),
             transforms.RandomVerticalFlip(),
             transforms.RandomRotation(180),
@@ -443,9 +453,9 @@ def train_supervised_classifier(
     output_dir: Path,
     simclr_checkpoint: Path | None = None,
 ) -> dict[str, object]:
-    train_dataset = LabeledCropDataset(records_by_split["train"], train_transform(args.image_size))
-    val_dataset = LabeledCropDataset(records_by_split["val"], eval_transform(args.image_size))
-    test_dataset = LabeledCropDataset(records_by_split["test"], eval_transform(args.image_size))
+    train_dataset = LabeledCropDataset(records_by_split["train"], train_transform(args.image_size, grayscale=args.grayscale))
+    val_dataset = LabeledCropDataset(records_by_split["val"], eval_transform(args.image_size, grayscale=args.grayscale))
+    test_dataset = LabeledCropDataset(records_by_split["test"], eval_transform(args.image_size, grayscale=args.grayscale))
     train_loader = make_loader(train_dataset, args.batch_size, shuffle=True, num_workers=args.num_workers)
     val_loader = make_loader(val_dataset, args.batch_size, shuffle=False, num_workers=args.num_workers)
     test_loader = make_loader(test_dataset, args.batch_size, shuffle=False, num_workers=args.num_workers)
@@ -514,6 +524,7 @@ def train_supervised_classifier(
     summary = {
         "setup": setup_name,
         "pretrained": pretrained,
+        "grayscale": bool(args.grayscale),
         "simclr_checkpoint": str(simclr_checkpoint) if simclr_checkpoint else None,
         "dataset_counts": {
             split: dict(Counter(record.label for record in records))
@@ -542,7 +553,7 @@ def train_simclr(
     device: torch.device,
     output_dir: Path,
 ) -> Path:
-    dataset = SimCLRDataset(unlabeled_records, simclr_transform(args.image_size))
+    dataset = SimCLRDataset(unlabeled_records, simclr_transform(args.image_size, grayscale=args.grayscale))
     loader = make_loader(dataset, args.simclr_batch_size, shuffle=True, num_workers=args.num_workers)
     model = SimCLRModel(projection_dim=args.projection_dim).to(device)
     optimizer = torch.optim.AdamW(model.parameters(), lr=args.simclr_lr, weight_decay=args.weight_decay)
@@ -601,6 +612,7 @@ def write_stage5_summary(output_dir: Path, summaries: dict[str, dict[str, object
         rows.append(
             {
                 "setup": setup,
+                "input_mode": "grayscale" if args.grayscale else "rgb",
                 "test_crop_balanced_accuracy": test_crop.get("balanced_accuracy"),
                 "test_crop_accuracy": test_crop.get("accuracy"),
                 "test_crop_roc_auc": test_crop.get("roc_auc"),
@@ -617,6 +629,10 @@ def write_stage5_summary(output_dir: Path, summaries: dict[str, dict[str, object
         "- `supervised_scratch`: ResNet-18 trained from random initialization on Pool A vs Pool B.",
         "- `imagenet_finetune`: ResNet-18 initialized from ImageNet weights, then fine-tuned on Pool A vs Pool B.",
         "- `simclr_finetune`: ResNet-18 SimCLR-pretrained on in-domain crops, then fine-tuned on Pool A vs Pool B.",
+        "",
+        "## Input Mode",
+        f"- Inputs converted to grayscale before training/evaluation: `{args.grayscale}`.",
+        "- Grayscale uses 3 repeated channels so model architecture, normalization, and ImageNet compatibility remain unchanged.",
         "",
         "## Leakage Policy",
         f"- SimCLR SSL splits: `{','.join(args.ssl_splits)}`.",
@@ -656,6 +672,11 @@ def main() -> None:
     parser.add_argument("--weight-decay", type=float, default=1e-4)
     parser.add_argument("--temperature", type=float, default=0.2)
     parser.add_argument("--projection-dim", type=int, default=128)
+    parser.add_argument(
+        "--grayscale",
+        action="store_true",
+        help="Convert every crop to grayscale before training and evaluation while keeping the 3-channel model interface unchanged.",
+    )
     parser.add_argument(
         "--simclr-checkpoint",
         type=Path,
