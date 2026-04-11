@@ -20,5 +20,8 @@ stage4_outputs/
 stage5_outputs/
 stage5_grayscale_outputs/
 stage6_outputs/
+stage6_grayscale_outputs/
 stage7_outputs/
+stage7_grayscale_outputs/
+stage7_low_label_grayscale_outputs/
 stage7_low_label_outputs/

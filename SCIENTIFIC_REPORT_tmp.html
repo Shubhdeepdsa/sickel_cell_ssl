@@ -1,0 +1,1744 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>SCIENTIFIC_REPORT.md</title>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+
+<style>
+/* https://github.com/microsoft/vscode/blob/master/extensions/markdown-language-features/media/markdown.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+body {
+	font-family: var(--vscode-markdown-font-family, -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif);
+	font-size: var(--vscode-markdown-font-size, 14px);
+	padding: 0 26px;
+	line-height: var(--vscode-markdown-line-height, 22px);
+	word-wrap: break-word;
+}
+
+#code-csp-warning {
+	position: fixed;
+	top: 0;
+	right: 0;
+	color: white;
+	margin: 16px;
+	text-align: center;
+	font-size: 12px;
+	font-family: sans-serif;
+	background-color:#444444;
+	cursor: pointer;
+	padding: 6px;
+	box-shadow: 1px 1px 1px rgba(0,0,0,.25);
+}
+
+#code-csp-warning:hover {
+	text-decoration: none;
+	background-color:#007acc;
+	box-shadow: 2px 2px 2px rgba(0,0,0,.25);
+}
+
+body.scrollBeyondLastLine {
+	margin-bottom: calc(100vh - 22px);
+}
+
+body.showEditorSelection .code-line {
+	position: relative;
+}
+
+body.showEditorSelection .code-active-line:before,
+body.showEditorSelection .code-line:hover:before {
+	content: "";
+	display: block;
+	position: absolute;
+	top: 0;
+	left: -12px;
+	height: 100%;
+}
+
+body.showEditorSelection li.code-active-line:before,
+body.showEditorSelection li.code-line:hover:before {
+	left: -30px;
+}
+
+.vscode-light.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.15);
+}
+
+.vscode-light.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.40);
+}
+
+.vscode-light.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-dark.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.4);
+}
+
+.vscode-dark.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.60);
+}
+
+.vscode-dark.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-high-contrast.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 160, 0, 0.7);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 160, 0, 1);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+img {
+	max-width: 100%;
+	max-height: 100%;
+}
+
+a {
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+	outline: 1px solid -webkit-focus-ring-color;
+	outline-offset: -1px;
+}
+
+hr {
+	border: 0;
+	height: 2px;
+	border-bottom: 2px solid;
+}
+
+h1 {
+	padding-bottom: 0.3em;
+	line-height: 1.2;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+}
+
+h1, h2, h3 {
+	font-weight: normal;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+table > thead > tr > th {
+	text-align: left;
+	border-bottom: 1px solid;
+}
+
+table > thead > tr > th,
+table > thead > tr > td,
+table > tbody > tr > th,
+table > tbody > tr > td {
+	padding: 5px 10px;
+}
+
+table > tbody > tr + tr > td {
+	border-top: 1px solid;
+}
+
+blockquote {
+	margin: 0 7px 0 5px;
+	padding: 0 16px 0 10px;
+	border-left-width: 5px;
+	border-left-style: solid;
+}
+
+code {
+	font-family: Menlo, Monaco, Consolas, "Droid Sans Mono", "Courier New", monospace, "Droid Sans Fallback";
+	font-size: 1em;
+	line-height: 1.357em;
+}
+
+body.wordWrap pre {
+	white-space: pre-wrap;
+}
+
+pre:not(.hljs),
+pre.hljs code > div {
+	padding: 16px;
+	border-radius: 3px;
+	overflow: auto;
+}
+
+pre code {
+	color: var(--vscode-editor-foreground);
+	tab-size: 4;
+}
+
+/** Theming */
+
+.vscode-light pre {
+	background-color: rgba(220, 220, 220, 0.4);
+}
+
+.vscode-dark pre {
+	background-color: rgba(10, 10, 10, 0.4);
+}
+
+.vscode-high-contrast pre {
+	background-color: rgb(0, 0, 0);
+}
+
+.vscode-high-contrast h1 {
+	border-color: rgb(0, 0, 0);
+}
+
+.vscode-light table > thead > tr > th {
+	border-color: rgba(0, 0, 0, 0.69);
+}
+
+.vscode-dark table > thead > tr > th {
+	border-color: rgba(255, 255, 255, 0.69);
+}
+
+.vscode-light h1,
+.vscode-light hr,
+.vscode-light table > tbody > tr + tr > td {
+	border-color: rgba(0, 0, 0, 0.18);
+}
+
+.vscode-dark h1,
+.vscode-dark hr,
+.vscode-dark table > tbody > tr + tr > td {
+	border-color: rgba(255, 255, 255, 0.18);
+}
+
+</style>
+
+<style>
+/* Tomorrow Theme */
+/* http://jmblog.github.com/color-themes-for-google-code-highlightjs */
+/* Original theme - https://github.com/chriskempson/tomorrow-theme */
+
+/* Tomorrow Comment */
+.hljs-comment,
+.hljs-quote {
+	color: #8e908c;
+}
+
+/* Tomorrow Red */
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-regexp,
+.hljs-deletion {
+	color: #c82829;
+}
+
+/* Tomorrow Orange */
+.hljs-number,
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-literal,
+.hljs-type,
+.hljs-params,
+.hljs-meta,
+.hljs-link {
+	color: #f5871f;
+}
+
+/* Tomorrow Yellow */
+.hljs-attribute {
+	color: #eab700;
+}
+
+/* Tomorrow Green */
+.hljs-string,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition {
+	color: #718c00;
+}
+
+/* Tomorrow Blue */
+.hljs-title,
+.hljs-section {
+	color: #4271ae;
+}
+
+/* Tomorrow Purple */
+.hljs-keyword,
+.hljs-selector-tag {
+	color: #8959a8;
+}
+
+.hljs {
+	display: block;
+	overflow-x: auto;
+	color: #4d4d4c;
+	padding: 0.5em;
+}
+
+.hljs-emphasis {
+	font-style: italic;
+}
+
+.hljs-strong {
+	font-weight: bold;
+}
+</style>
+
+<style>
+/*
+ * Markdown PDF CSS
+ */
+
+ body {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "Meiryo";
+	padding: 0 12px;
+}
+
+pre {
+	background-color: #f8f8f8;
+	border: 1px solid #cccccc;
+	border-radius: 3px;
+	overflow-x: auto;
+	white-space: pre-wrap;
+	overflow-wrap: break-word;
+}
+
+pre:not(.hljs) {
+	padding: 23px;
+	line-height: 19px;
+}
+
+blockquote {
+	background: rgba(127, 127, 127, 0.1);
+	border-color: rgba(0, 122, 204, 0.5);
+}
+
+.emoji {
+	height: 1.4em;
+}
+
+code {
+	font-size: 14px;
+	line-height: 19px;
+}
+
+/* for inline code */
+:not(pre):not(.hljs) > code {
+	color: #C9AE75; /* Change the old color so it seems less like an error */
+	font-size: inherit;
+}
+
+/* Page Break : use <div class="page"/> to insert page break
+-------------------------------------------------------- */
+.page {
+	page-break-after: always;
+}
+
+</style>
+
+<script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: document.body.classList.contains('vscode-dark') || document.body.classList.contains('vscode-high-contrast')
+          ? 'dark'
+          : 'default'
+    });
+  </script>
+<h1 id="comprehensive-scientific-report">Comprehensive Scientific Report</h1>
+<h2 id="title">Title</h2>
+<p><strong>A Source-Level, Crop-Based Classification Pipeline for Sickle Cell Morphology in Uganda Smartphone Microscopy: Annotation Recovery, Label Construction, Self-Supervised Learning, Label-Efficiency, and Robustness Analysis</strong></p>
+<h2 id="abstract">Abstract</h2>
+<p>This report documents the full computational workflow implemented in this repository for binary classification of individual red-blood-cell crops as <code>sickled</code> or <code>non_sickled</code> using a Uganda smartphone microscopy dataset. The study was designed to answer a focused methodological question: whether in-domain self-supervised learning improves downstream classification performance, particularly when labeled data are scarce. The repository implements data auditing, annotation reconstruction from raster overlays, source-level train/validation/test partitioning, crop generation, a classical baseline, deep supervised baselines, in-domain SimCLR pretraining, low-label experiments, and robustness testing under smartphone-style perturbations. The principal findings are: (1) the crop-level task is learnable, (2) source-level splitting successfully avoids a major leakage failure mode, (3) in-domain SimCLR consistently improves over supervised training from scratch, (4) the SimCLR advantage grows as labeled data shrink, and (5) ImageNet initialization remains the strongest overall baseline in the canonical RGB experiments. The main scientific limitations are the heuristic construction of non-sickled crops, the recovery of positive boxes from raster overlays rather than original coordinate annotations, and the absence of explicit stain metadata in the current manifests.</p>
+<h2 id="research-objective-and-repository-scope">Research Objective and Repository Scope</h2>
+<p>The repository implements a crop-level binary cell classification pipeline for the following question:</p>
+<p><strong>Does in-domain self-supervised pretraining improve binary sickled-vs-non-sickled cell crop classification on a small smartphone-microscopy dataset, especially in the low-label regime?</strong></p>
+<p>The repository is scoped to:</p>
+<ul>
+<li>cell-crop classification,</li>
+<li>Uganda smartphone microscopy imagery,</li>
+<li>two classes: <code>sickled</code> and <code>non_sickled</code>,</li>
+<li>representation learning, label-efficiency, and robustness evaluation.</li>
+</ul>
+<p>The repository is not scoped to:</p>
+<ul>
+<li>whole-image diagnosis,</li>
+<li>cell counting,</li>
+<li>segmentation,</li>
+<li>clinical deployment,</li>
+<li>external multi-site generalization claims.</li>
+</ul>
+<h2 id="end-to-end-computational-architecture">End-to-End Computational Architecture</h2>
+<p>The implemented workflow is summarized below from raw data ingestion to final evaluation.</p>
+<pre><code class="language-mermaid"><div class="mermaid">flowchart TD
+    A["Uganda microscopy dataset"] --> B["Positive/Labelled<br/>overlay JPGs"]
+    A --> C["Positive/Unlabelled<br/>raw JPGs"]
+    A --> D["Negative/Clear<br/>raw JPGs"]
+
+    B --> E["Annotation reconstruction<br/>from raster overlays"]
+    C --> E
+    E --> F["Recovered positive boxes"]
+
+    C --> G["Source-image manifest creation"]
+    D --> G
+    F --> G
+
+    G --> H["Source-level train/val/test split<br/>70/15/15, seed 42"]
+    H --> I["Pool A<br/>labeled sickled crops"]
+    H --> J["Pool B<br/>heuristic labeled non-sickled crops"]
+    H --> K["Pool C<br/>unlabeled candidate crops"]
+
+    I --> L["Classical baseline<br/>logistic regression"]
+    J --> L
+
+    I --> M["Deep supervised training<br/>scratch and ImageNet"]
+    J --> M
+
+    I --> N["SimCLR pretraining pool"]
+    J --> N
+    K --> N
+    N --> O["SimCLR fine-tuning"]
+
+    M --> P["Full-label comparison"]
+    O --> P
+    P --> Q["Low-label source-level subsampling"]
+    Q --> R["10%, 20%, 50%, 100% label-fraction experiments"]
+    R --> S["Robustness evaluation under blur, brightness,<br/>compression, and stain/color perturbation"]
+</div></code></pre>
+<p>The repository also contains an exploratory grayscale branch, but the primary canonical pipeline in the workspace is the RGB branch summarized above.</p>
+<h2 id="cohort-assembly-and-data-characterization">Cohort Assembly and Data Characterization</h2>
+<h3 id="data-source">Data source</h3>
+<p>The experiments use the Uganda smartphone microscopy dataset located under:</p>
+<ul>
+<li><code>datasets/Positive/Labelled</code></li>
+<li><code>datasets/Positive/Unlabelled</code></li>
+<li><code>datasets/Negative/Clear</code></li>
+</ul>
+<h3 id="image-audit-summary">Image audit summary</h3>
+<p>All numerical values below are taken from the saved audit artifact <code>eda_outputs/stage1_data_audit.md</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Quantity</th>
+<th style="text-align:right">Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Positive raw images for modeling</td>
+<td style="text-align:right">422</td>
+</tr>
+<tr>
+<td>Positive labelled overlay images</td>
+<td style="text-align:right">422</td>
+</tr>
+<tr>
+<td>Negative clear images</td>
+<td style="text-align:right">147</td>
+</tr>
+<tr>
+<td>Positive labelled/unlabelled filename pairs</td>
+<td style="text-align:right">422</td>
+</tr>
+<tr>
+<td>Total image files scanned</td>
+<td style="text-align:right">991</td>
+</tr>
+<tr>
+<td>Source images used downstream</td>
+<td style="text-align:right">569</td>
+</tr>
+</tbody>
+</table>
+<h3 id="image-size-profile">Image size profile</h3>
+<table>
+<thead>
+<tr>
+<th>Statistic</th>
+<th style="text-align:right">Width</th>
+<th style="text-align:right">Height</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Median</td>
+<td style="text-align:right">1000</td>
+<td style="text-align:right">1009</td>
+</tr>
+<tr>
+<td>Minimum</td>
+<td style="text-align:right">469</td>
+<td style="text-align:right">436</td>
+</tr>
+<tr>
+<td>Maximum</td>
+<td style="text-align:right">4160</td>
+<td style="text-align:right">3440</td>
+</tr>
+</tbody>
+</table>
+<h3 id="quality-and-color-cast-proxy-summary">Quality and color-cast proxy summary</h3>
+<table>
+<thead>
+<tr>
+<th>Image quality category</th>
+<th style="text-align:right">Count</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>usable</td>
+<td style="text-align:right">565</td>
+</tr>
+<tr>
+<td>low_contrast</td>
+<td style="text-align:right">4</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>Color-cast proxy category</th>
+<th style="text-align:right">Count</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>balanced_mixed_cast</td>
+<td style="text-align:right">238</td>
+</tr>
+<tr>
+<td>blue_purple_cast</td>
+<td style="text-align:right">120</td>
+</tr>
+<tr>
+<td>green_cyan_cast</td>
+<td style="text-align:right">11</td>
+</tr>
+<tr>
+<td>pink_red_cast</td>
+<td style="text-align:right">200</td>
+</tr>
+</tbody>
+</table>
+<h3 id="stain-metadata-status">Stain metadata status</h3>
+<p>No explicit stain labels were encoded in the raw folder or filename structure used by the current pipeline. As a result:</p>
+<ul>
+<li>split manifests retain stain as effectively <code>unknown</code>,</li>
+<li>stain-aware stratification was not meaningfully available,</li>
+<li>robustness conclusions are based on synthetic perturbations rather than known stain metadata.</li>
+</ul>
+<h2 id="annotation-reconstruction-and-label-derivation">Annotation Reconstruction and Label Derivation</h2>
+<h3 id="annotation-storage-reality">Annotation storage reality</h3>
+<p>No separate XML, JSON, TXT, or coordinate annotation files were found. Instead, the positive annotations were embedded as black rectangle overlays in the labelled JPGs. Matching raw images were available in the corresponding unlabelled directory.</p>
+<h3 id="annotation-reconstruction-method">Annotation reconstruction method</h3>
+<p>Positive crop annotations were reconstructed from the overlay/raw image pairs using an image-processing heuristic implemented in <code>eda.py</code>. The main logic was:</p>
+<ol>
+<li>Resize the labelled and raw images to a common analysis grid.</li>
+<li>Detect dark rectangular regions by paired differencing and single-image dark-region fallback logic.</li>
+<li>Remove edge-connected regions and non-rectangular connected components.</li>
+<li>Score recovered components for box-like geometry and interior occupancy.</li>
+<li>Categorize components into <code>likely_crop_candidate</code>, <code>loose_or_empty</code>, or <code>overfilled</code>.</li>
+</ol>
+<h3 id="annotation-reconstruction-workflow">Annotation reconstruction workflow</h3>
+<pre><code class="language-mermaid"><div class="mermaid">flowchart TD
+    A["Labelled positive image<br/>with black rectangle overlays"] --> C["Resize to analysis resolution"]
+    B["Matching raw positive image"] --> C
+    C --> D["Paired difference mask<br/>raw brighter than overlay"]
+    C --> E["Fallback dark-rectangle detection"]
+    D --> F["Connected components"]
+    E --> F
+    F --> G["Remove edge-touching regions"]
+    G --> H["Filter by size, aspect ratio,<br/>fill ratio, rectangularity"]
+    H --> I["Estimate interior foreground occupancy"]
+    I --> J["Recovered box categories"]
+    J --> K["likely_crop_candidate"]
+    J --> L["loose_or_empty"]
+    J --> M["overfilled"]
+</div></code></pre>
+<h3 id="annotation-reconstruction-results">Annotation reconstruction results</h3>
+<table>
+<thead>
+<tr>
+<th>Quantity</th>
+<th style="text-align:right">Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Labelled images with at least one detected box</td>
+<td style="text-align:right">421 / 422</td>
+</tr>
+<tr>
+<td>Total detected boxes</td>
+<td style="text-align:right">1408</td>
+</tr>
+<tr>
+<td>Likely crop-candidate boxes</td>
+<td style="text-align:right">993</td>
+</tr>
+<tr>
+<td>Crop-candidate proportion</td>
+<td style="text-align:right">70.5%</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>Recovered box quality bucket</th>
+<th style="text-align:right">Count</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>likely_crop_candidate</td>
+<td style="text-align:right">993</td>
+</tr>
+<tr>
+<td>loose_or_empty</td>
+<td style="text-align:right">159</td>
+</tr>
+<tr>
+<td>overfilled</td>
+<td style="text-align:right">256</td>
+</tr>
+</tbody>
+</table>
+<h3 id="scientific-implication">Scientific implication</h3>
+<p>The positive labels used downstream are usable for experimentation, but they are not equivalent to original gold-standard coordinate annotations. Any scientific interpretation must retain that limitation.</p>
+<h2 id="source-level-partitioning-and-leakage-control">Source-Level Partitioning and Leakage Control</h2>
+<p>To avoid train/test contamination through shared source-image style, illumination, or capture artifacts, the repository splits the data at the source-image level before crop generation. This policy is implemented in <code>split_protocol.py</code>.</p>
+<h3 id="partition-design">Partition design</h3>
+<ul>
+<li>train / validation / test target: <code>70% / 15% / 15%</code></li>
+<li>deterministic seed: <code>42</code></li>
+<li>globally unique source keys were used to avoid positive/negative filename collisions</li>
+</ul>
+<h3 id="final-source-split">Final source split</h3>
+<table>
+<thead>
+<tr>
+<th>Split</th>
+<th style="text-align:right">Sources</th>
+<th style="text-align:right">Positive</th>
+<th style="text-align:right">Negative</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>train</td>
+<td style="text-align:right">399</td>
+<td style="text-align:right">296</td>
+<td style="text-align:right">103</td>
+</tr>
+<tr>
+<td>val</td>
+<td style="text-align:right">85</td>
+<td style="text-align:right">63</td>
+<td style="text-align:right">22</td>
+</tr>
+<tr>
+<td>test</td>
+<td style="text-align:right">85</td>
+<td style="text-align:right">63</td>
+<td style="text-align:right">22</td>
+</tr>
+<tr>
+<td>total</td>
+<td style="text-align:right">569</td>
+<td style="text-align:right">422</td>
+<td style="text-align:right">147</td>
+</tr>
+</tbody>
+</table>
+<h3 id="importance-of-this-choice">Importance of this choice</h3>
+<p>This is one of the strongest design decisions in the repository. It prevents the common failure mode where train and test sets share crops from the same original microscopy frame.</p>
+<h2 id="crop-dataset-construction">Crop Dataset Construction</h2>
+<p>Crop generation is implemented in <code>crop_creation.py</code>. The repository constructs three distinct pools with different purposes.</p>
+<h3 id="crop-pool-definitions">Crop pool definitions</h3>
+<ul>
+<li><strong>Pool A</strong>: labeled sickled crops from recovered positive-image boxes</li>
+<li><strong>Pool B</strong>: heuristic labeled non-sickled crops from negative images using connected components</li>
+<li><strong>Pool C</strong>: unlabeled candidate crops for SimCLR pretraining</li>
+</ul>
+<h3 id="crop-counts">Crop counts</h3>
+<table>
+<thead>
+<tr>
+<th>Pool</th>
+<th>Definition</th>
+<th style="text-align:right">Total</th>
+<th style="text-align:right">Train</th>
+<th style="text-align:right">Val</th>
+<th style="text-align:right">Test</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Pool A</td>
+<td>labeled sickled</td>
+<td style="text-align:right">1249</td>
+<td style="text-align:right">917</td>
+<td style="text-align:right">150</td>
+<td style="text-align:right">182</td>
+</tr>
+<tr>
+<td>Pool B</td>
+<td>labeled non-sickled</td>
+<td style="text-align:right">1462</td>
+<td style="text-align:right">1000</td>
+<td style="text-align:right">236</td>
+<td style="text-align:right">226</td>
+</tr>
+<tr>
+<td>Pool C</td>
+<td>unlabeled candidate crops</td>
+<td style="text-align:right">3971</td>
+<td style="text-align:right">2790</td>
+<td style="text-align:right">568</td>
+<td style="text-align:right">613</td>
+</tr>
+</tbody>
+</table>
+<h3 id="crop-construction-facts">Crop construction facts</h3>
+<table>
+<thead>
+<tr>
+<th>Quantity</th>
+<th style="text-align:right">Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Output crop size</td>
+<td style="text-align:right">128 x 128</td>
+</tr>
+<tr>
+<td>Sources with multiple splits after crop generation</td>
+<td style="text-align:right">0</td>
+</tr>
+</tbody>
+</table>
+<h3 id="quality-caveat-for-pool-b">Quality caveat for Pool B</h3>
+<p>Pool B is not an expert-reviewed non-sickled cell set. It is a heuristic negative-crop pool derived from connected components in negative source images. Some crops include border or context artifacts, which is an important limitation.</p>
+<h3 id="representative-crop-generation-visual">Representative crop-generation visual</h3>
+<p><em>Figure 1. Pool B spot-check contact sheet illustrating heuristic non-sickled crop generation and its artifact risk.</em></p>
+<p><img src="file:///Users/shubhdeepdas/Desktop/Paper_Research/Sickel_cell/fig01_pool_b_contact_sheet.jpg" alt="Pool B contact sheet"></p>
+<h2 id="classical-discriminative-baseline">Classical Discriminative Baseline</h2>
+<p>Before deep learning, the repository established a fast statistical baseline using logistic regression over handcrafted image features. This model is implemented in <code>train_binary_classifier.py</code>.</p>
+<h3 id="feature-design">Feature design</h3>
+<p>The feature representation combined:</p>
+<ul>
+<li>resized RGB thumbnail features,</li>
+<li>RGB histogram features,</li>
+<li>simple texture features,</li>
+<li>brightness statistics.</li>
+</ul>
+<h3 id="training-data-counts">Training data counts</h3>
+<table>
+<thead>
+<tr>
+<th>Split</th>
+<th style="text-align:right">Sickled</th>
+<th style="text-align:right">Non-sickled</th>
+<th style="text-align:right">Total</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>train</td>
+<td style="text-align:right">917</td>
+<td style="text-align:right">1000</td>
+<td style="text-align:right">1917</td>
+</tr>
+<tr>
+<td>val</td>
+<td style="text-align:right">150</td>
+<td style="text-align:right">236</td>
+<td style="text-align:right">386</td>
+</tr>
+<tr>
+<td>test</td>
+<td style="text-align:right">182</td>
+<td style="text-align:right">226</td>
+<td style="text-align:right">408</td>
+</tr>
+</tbody>
+</table>
+<h3 id="leakage-checks">Leakage checks</h3>
+<table>
+<thead>
+<tr>
+<th>Quantity</th>
+<th style="text-align:right">Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>n_sources</td>
+<td style="text-align:right">543</td>
+</tr>
+<tr>
+<td>sources_with_multiple_splits</td>
+<td style="text-align:right">0</td>
+</tr>
+<tr>
+<td>sources_with_multiple_labels</td>
+<td style="text-align:right">0</td>
+</tr>
+</tbody>
+</table>
+<h3 id="validation-model-selection">Validation model selection</h3>
+<table>
+<thead>
+<tr>
+<th>Regularization C</th>
+<th style="text-align:right">Balanced Accuracy</th>
+<th style="text-align:right">Accuracy</th>
+<th style="text-align:right">Macro F1</th>
+<th style="text-align:right">ROC AUC</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0.01</td>
+<td style="text-align:right">0.8083</td>
+<td style="text-align:right">0.8057</td>
+<td style="text-align:right">0.8000</td>
+<td style="text-align:right">0.8673</td>
+</tr>
+<tr>
+<td>0.1</td>
+<td style="text-align:right">0.7780</td>
+<td style="text-align:right">0.7746</td>
+<td style="text-align:right">0.7688</td>
+<td style="text-align:right">0.8421</td>
+</tr>
+<tr>
+<td>1.0</td>
+<td style="text-align:right">0.7495</td>
+<td style="text-align:right">0.7487</td>
+<td style="text-align:right">0.7418</td>
+<td style="text-align:right">0.8050</td>
+</tr>
+<tr>
+<td>10.0</td>
+<td style="text-align:right">0.7335</td>
+<td style="text-align:right">0.7306</td>
+<td style="text-align:right">0.7243</td>
+<td style="text-align:right">0.7734</td>
+</tr>
+</tbody>
+</table>
+<h3 id="test-performance">Test performance</h3>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th style="text-align:right">Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Accuracy</td>
+<td style="text-align:right">0.8505</td>
+</tr>
+<tr>
+<td>Balanced accuracy</td>
+<td style="text-align:right">0.8485</td>
+</tr>
+<tr>
+<td>Macro F1</td>
+<td style="text-align:right">0.8486</td>
+</tr>
+<tr>
+<td>ROC AUC</td>
+<td style="text-align:right">0.8988</td>
+</tr>
+</tbody>
+</table>
+<h3 id="test-confusion-matrix">Test confusion matrix</h3>
+<table>
+<thead>
+<tr>
+<th>Actual class</th>
+<th style="text-align:right">Predicted non_sickled</th>
+<th style="text-align:right">Predicted sickled</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>non_sickled</td>
+<td style="text-align:right">196</td>
+<td style="text-align:right">30</td>
+</tr>
+<tr>
+<td>sickled</td>
+<td style="text-align:right">31</td>
+<td style="text-align:right">151</td>
+</tr>
+</tbody>
+</table>
+<h3 id="majority-class-comparison">Majority-class comparison</h3>
+<table>
+<thead>
+<tr>
+<th>Split</th>
+<th style="text-align:right">Majority-baseline accuracy</th>
+<th style="text-align:right">Majority-baseline balanced accuracy</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>val</td>
+<td style="text-align:right">0.6114</td>
+<td style="text-align:right">0.5000</td>
+</tr>
+<tr>
+<td>test</td>
+<td style="text-align:right">0.5539</td>
+<td style="text-align:right">0.5000</td>
+</tr>
+</tbody>
+</table>
+<h3 id="interpretation">Interpretation</h3>
+<p>The classical model established that the crop-level task is meaningfully learnable and clearly above a one-class baseline. However, it could not determine whether the learned signal was genuinely morphological or partly driven by extraction artifacts and capture shortcuts.</p>
+<h3 id="representative-baseline-visuals">Representative baseline visuals</h3>
+<p><em>Figure 2. Test confusion matrix for the classical baseline.</em></p>
+<p><img src="file:///Users/shubhdeepdas/Desktop/Paper_Research/Sickel_cell/fig02_stage4_confusion_matrix.png" alt="Stage 4 confusion matrix"></p>
+<p><em>Figure 3. ROC curve for the classical baseline.</em></p>
+<p><img src="file:///Users/shubhdeepdas/Desktop/Paper_Research/Sickel_cell/fig03_stage4_roc_curve.png" alt="Stage 4 ROC curve"></p>
+<p><em>Figure 4. Error contact sheet for qualitative inspection of baseline failures.</em></p>
+<p><img src="file:///Users/shubhdeepdas/Desktop/Paper_Research/Sickel_cell/fig04_stage4_error_sheet.jpg" alt="Stage 4 error sheet"></p>
+<h2 id="deep-convolutional-baselines-and-in-domain-self-supervised-pretraining">Deep Convolutional Baselines and In-Domain Self-Supervised Pretraining</h2>
+<p>The core representation-learning comparison was implemented in <code>train_stage5.py</code>. Three branches were evaluated:</p>
+<ol>
+<li><code>supervised_scratch</code></li>
+<li><code>imagenet_finetune</code></li>
+<li><code>simclr_finetune</code></li>
+</ol>
+<h3 id="supervised-training-configuration">Supervised training configuration</h3>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th style="text-align:right">Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Backbone</td>
+<td style="text-align:right">ResNet-18</td>
+</tr>
+<tr>
+<td>Image size</td>
+<td style="text-align:right">224</td>
+</tr>
+<tr>
+<td>Batch size</td>
+<td style="text-align:right">32</td>
+</tr>
+<tr>
+<td>Epochs</td>
+<td style="text-align:right">20</td>
+</tr>
+<tr>
+<td>Optimizer</td>
+<td style="text-align:right">AdamW</td>
+</tr>
+<tr>
+<td>Learning rate</td>
+<td style="text-align:right">1e-4</td>
+</tr>
+<tr>
+<td>Weight decay</td>
+<td style="text-align:right">1e-4</td>
+</tr>
+<tr>
+<td>Scheduler</td>
+<td style="text-align:right">Cosine annealing</td>
+</tr>
+<tr>
+<td>Loss</td>
+<td style="text-align:right">class-weighted cross-entropy</td>
+</tr>
+</tbody>
+</table>
+<h3 id="supervised-augmentation-policy">Supervised augmentation policy</h3>
+<ul>
+<li>resize to <code>224 x 224</code></li>
+<li>random horizontal flip</li>
+<li>random vertical flip</li>
+<li>random rotation up to <code>180</code></li>
+<li>modest color jitter</li>
+</ul>
+<h3 id="simclr-pretraining-configuration">SimCLR pretraining configuration</h3>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th style="text-align:right">Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Backbone</td>
+<td style="text-align:right">ResNet-18 encoder</td>
+</tr>
+<tr>
+<td>Projection head</td>
+<td style="text-align:right">linear -&gt; ReLU -&gt; linear</td>
+</tr>
+<tr>
+<td>Projection dimension</td>
+<td style="text-align:right">128</td>
+</tr>
+<tr>
+<td>Epochs</td>
+<td style="text-align:right">50</td>
+</tr>
+<tr>
+<td>Batch size</td>
+<td style="text-align:right">64</td>
+</tr>
+<tr>
+<td>Learning rate</td>
+<td style="text-align:right">3e-4</td>
+</tr>
+<tr>
+<td>Weight decay</td>
+<td style="text-align:right">1e-4</td>
+</tr>
+<tr>
+<td>Temperature</td>
+<td style="text-align:right">0.2</td>
+</tr>
+<tr>
+<td>Scheduler</td>
+<td style="text-align:right">Cosine annealing</td>
+</tr>
+</tbody>
+</table>
+<h3 id="simclr-augmentation-policy">SimCLR augmentation policy</h3>
+<ul>
+<li>random resized crop with scale <code>(0.55, 1.0)</code></li>
+<li>random horizontal and vertical flips</li>
+<li>random rotation up to <code>180</code></li>
+<li>stronger color jitter</li>
+<li>random grayscale with probability <code>0.10</code></li>
+<li>Gaussian blur</li>
+</ul>
+<h3 id="effective-unlabeled-exposure-for-simclr">Effective unlabeled exposure for SimCLR</h3>
+<table>
+<thead>
+<tr>
+<th>Source contributing to SSL pool</th>
+<th style="text-align:right">Number of crops</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Pool C unlabeled train crops</td>
+<td style="text-align:right">2790</td>
+</tr>
+<tr>
+<td>Pool A + Pool B train crops with labels removed</td>
+<td style="text-align:right">1917</td>
+</tr>
+<tr>
+<td>Total train-split SSL pool</td>
+<td style="text-align:right">4707</td>
+</tr>
+</tbody>
+</table>
+<p>The SimCLR loss reportedly decreased from approximately <code>4.08</code> at epoch 1 to approximately <code>1.20</code> by epoch 50, indicating that the contrastive objective optimized as intended.</p>
+<h3 id="full-label-rgb-comparison">Full-label RGB comparison</h3>
+<p>The canonical RGB comparison, taken from <code>stage5_outputs/stage5_report.md</code>, is shown below.</p>
+<table>
+<thead>
+<tr>
+<th>Model family</th>
+<th style="text-align:right">Best validation balanced accuracy</th>
+<th style="text-align:right">Test crop balanced accuracy</th>
+<th style="text-align:right">Test crop ROC AUC</th>
+<th style="text-align:right">Test source balanced accuracy</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>supervised_scratch</td>
+<td style="text-align:right">0.9343</td>
+<td style="text-align:right">0.9311</td>
+<td style="text-align:right">0.9854</td>
+<td style="text-align:right">0.9518</td>
+</tr>
+<tr>
+<td>imagenet_finetune</td>
+<td style="text-align:right">0.9945</td>
+<td style="text-align:right">0.9863</td>
+<td style="text-align:right">0.9997</td>
+<td style="text-align:right">1.0000</td>
+</tr>
+<tr>
+<td>simclr_finetune</td>
+<td style="text-align:right">0.9785</td>
+<td style="text-align:right">0.9851</td>
+<td style="text-align:right">0.9987</td>
+<td style="text-align:right">1.0000</td>
+</tr>
+</tbody>
+</table>
+<h3 id="interpretation">Interpretation</h3>
+<p>This comparison answers the primary representation-learning question clearly:</p>
+<ul>
+<li>deep learning substantially improves upon the classical baseline,</li>
+<li>in-domain SimCLR provides a large improvement over supervised training from scratch,</li>
+<li>ImageNet fine-tuning remains the strongest overall full-label baseline in the canonical RGB branch.</li>
+</ul>
+<h3 id="representative-full-label-model-visual">Representative full-label model visual</h3>
+<p><em>Figure 5. Aggregate comparison of the deep full-label baselines.</em></p>
+<p><img src="file:///Users/shubhdeepdas/Desktop/Paper_Research/Sickel_cell/fig05_stage5_baseline_metrics.png" alt="Stage 5 baseline metrics"></p>
+<h2 id="label-efficiency-under-source-level-subsampling">Label-Efficiency Under Source-Level Subsampling</h2>
+<p>The low-label protocol was implemented in <code>train_stage6_low_label.py</code>. This experiment asked whether the value of self-supervised initialization increases when labeled supervision is scarce.</p>
+<h3 id="experimental-design">Experimental design</h3>
+<ul>
+<li>only the train split was subsampled,</li>
+<li>subsampling was done at the source-image level,</li>
+<li>validation and test sets remained fixed,</li>
+<li>subsets were nested and class-stratified,</li>
+<li>label fractions were <code>100%</code>, <code>50%</code>, <code>20%</code>, and <code>10%</code>.</li>
+</ul>
+<h3 id="training-subset-sizes">Training subset sizes</h3>
+<table>
+<thead>
+<tr>
+<th>Label fraction</th>
+<th style="text-align:right">Train sources</th>
+<th style="text-align:right">Train crops</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>100%</td>
+<td style="text-align:right">382</td>
+<td style="text-align:right">1917</td>
+</tr>
+<tr>
+<td>50%</td>
+<td style="text-align:right">190</td>
+<td style="text-align:right">900</td>
+</tr>
+<tr>
+<td>20%</td>
+<td style="text-align:right">76</td>
+<td style="text-align:right">367</td>
+</tr>
+<tr>
+<td>10%</td>
+<td style="text-align:right">38</td>
+<td style="text-align:right">196</td>
+</tr>
+</tbody>
+</table>
+<h3 id="low-label-rgb-results">Low-label RGB results</h3>
+<table>
+<thead>
+<tr>
+<th>Label fraction</th>
+<th style="text-align:right">Scratch balanced accuracy</th>
+<th style="text-align:right">SimCLR balanced accuracy</th>
+<th style="text-align:right">ImageNet balanced accuracy</th>
+<th style="text-align:right">SimCLR minus scratch</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>100%</td>
+<td style="text-align:right">0.9311</td>
+<td style="text-align:right">0.9873</td>
+<td style="text-align:right">0.9863</td>
+<td style="text-align:right">0.0562</td>
+</tr>
+<tr>
+<td>50%</td>
+<td style="text-align:right">0.8388</td>
+<td style="text-align:right">0.9658</td>
+<td style="text-align:right">0.9895</td>
+<td style="text-align:right">0.1270</td>
+</tr>
+<tr>
+<td>20%</td>
+<td style="text-align:right">0.7745</td>
+<td style="text-align:right">0.9310</td>
+<td style="text-align:right">0.9724</td>
+<td style="text-align:right">0.1565</td>
+</tr>
+<tr>
+<td>10%</td>
+<td style="text-align:right">0.6844</td>
+<td style="text-align:right">0.8791</td>
+<td style="text-align:right">0.9305</td>
+<td style="text-align:right">0.1948</td>
+</tr>
+</tbody>
+</table>
+<h3 id="low-label-rgb-roc-auc-and-source-level-summary">Low-label RGB ROC AUC and source-level summary</h3>
+<table>
+<thead>
+<tr>
+<th>Label fraction</th>
+<th>Setup</th>
+<th style="text-align:right">Test crop ROC AUC</th>
+<th style="text-align:right">Test source balanced accuracy</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>100%</td>
+<td>scratch</td>
+<td style="text-align:right">0.9854</td>
+<td style="text-align:right">0.9518</td>
+</tr>
+<tr>
+<td>100%</td>
+<td>imagenet</td>
+<td style="text-align:right">0.9997</td>
+<td style="text-align:right">1.0000</td>
+</tr>
+<tr>
+<td>100%</td>
+<td>simclr</td>
+<td style="text-align:right">0.9989</td>
+<td style="text-align:right">1.0000</td>
+</tr>
+<tr>
+<td>50%</td>
+<td>scratch</td>
+<td style="text-align:right">0.9239</td>
+<td style="text-align:right">0.8297</td>
+</tr>
+<tr>
+<td>50%</td>
+<td>imagenet</td>
+<td style="text-align:right">0.9988</td>
+<td style="text-align:right">1.0000</td>
+</tr>
+<tr>
+<td>50%</td>
+<td>simclr</td>
+<td style="text-align:right">0.9966</td>
+<td style="text-align:right">0.9688</td>
+</tr>
+<tr>
+<td>20%</td>
+<td>scratch</td>
+<td style="text-align:right">0.8185</td>
+<td style="text-align:right">0.7704</td>
+</tr>
+<tr>
+<td>20%</td>
+<td>imagenet</td>
+<td style="text-align:right">0.9966</td>
+<td style="text-align:right">0.9688</td>
+</tr>
+<tr>
+<td>20%</td>
+<td>simclr</td>
+<td style="text-align:right">0.9864</td>
+<td style="text-align:right">0.9688</td>
+</tr>
+<tr>
+<td>10%</td>
+<td>scratch</td>
+<td style="text-align:right">0.7740</td>
+<td style="text-align:right">0.7419</td>
+</tr>
+<tr>
+<td>10%</td>
+<td>imagenet</td>
+<td style="text-align:right">0.9839</td>
+<td style="text-align:right">0.9831</td>
+</tr>
+<tr>
+<td>10%</td>
+<td>simclr</td>
+<td style="text-align:right">0.9475</td>
+<td style="text-align:right">0.8810</td>
+</tr>
+</tbody>
+</table>
+<h3 id="interpretation">Interpretation</h3>
+<p>This is one of the strongest results in the repository. The gain of SimCLR over scratch increases monotonically as labels are reduced:</p>
+<ul>
+<li><code>+0.0562</code> at full labels,</li>
+<li><code>+0.1270</code> at 50% labels,</li>
+<li><code>+0.1565</code> at 20% labels,</li>
+<li><code>+0.1948</code> at 10% labels.</li>
+</ul>
+<p>That pattern strongly supports the intended scientific hypothesis that in-domain self-supervised learning is especially useful in the low-label regime.</p>
+<h3 id="representative-low-label-visuals">Representative low-label visuals</h3>
+<p><em>Figure 6. Test crop balanced accuracy across label fractions.</em></p>
+<p><img src="file:///Users/shubhdeepdas/Desktop/Paper_Research/Sickel_cell/fig06_stage6_low_label_balanced_accuracy.png" alt="Stage 6 low-label balanced accuracy"></p>
+<p><em>Figure 7. Gain over scratch across label fractions.</em></p>
+<p><img src="file:///Users/shubhdeepdas/Desktop/Paper_Research/Sickel_cell/fig07_stage6_gain_over_scratch.png" alt="Stage 6 gain over scratch"></p>
+<p><em>Figure 8. Heatmap summary of the low-label comparison.</em></p>
+<p><img src="file:///Users/shubhdeepdas/Desktop/Paper_Research/Sickel_cell/fig08_stage6_heatmap.png" alt="Stage 6 heatmap"></p>
+<h2 id="robustness-under-smartphone-style-perturbations">Robustness Under Smartphone-Style Perturbations</h2>
+<p>The robustness study was implemented in <code>evaluate_stage7_robustness.py</code> and <code>evaluate_stage7_low_label_robustness.py</code>. These analyses test whether clean performance remains stable under mild deterministic perturbations intended to approximate common smartphone microscopy acquisition issues.</p>
+<h3 id="perturbation-protocol">Perturbation protocol</h3>
+<table>
+<thead>
+<tr>
+<th>Perturbation</th>
+<th>Setting</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>blurred</td>
+<td>Gaussian blur radius <code>1.25</code></td>
+</tr>
+<tr>
+<td>lower_brightness</td>
+<td>brightness factor <code>0.75</code></td>
+</tr>
+<tr>
+<td>mild_compression</td>
+<td>JPEG quality <code>45</code></td>
+</tr>
+<tr>
+<td>mild_stain_color</td>
+<td>RGB scales <code>(1.08, 0.97, 1.06)</code> with color factor <code>1.08</code> and contrast factor <code>1.03</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="full-label-rgb-robustness">Full-label RGB robustness</h3>
+<p>The table below evaluates the saved full-label RGB checkpoints.</p>
+<table>
+<thead>
+<tr>
+<th>Model family</th>
+<th style="text-align:right">Clean</th>
+<th style="text-align:right">Blur</th>
+<th style="text-align:right">Brightness</th>
+<th style="text-align:right">Compression</th>
+<th style="text-align:right">Stain/Color</th>
+<th>Largest drop from clean</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>supervised_scratch</td>
+<td style="text-align:right">0.9311</td>
+<td style="text-align:right">0.9261</td>
+<td style="text-align:right">0.8824</td>
+<td style="text-align:right">0.9090</td>
+<td style="text-align:right">0.5066</td>
+<td>stain/color</td>
+</tr>
+<tr>
+<td>imagenet_finetune</td>
+<td style="text-align:right">0.9863</td>
+<td style="text-align:right">0.9835</td>
+<td style="text-align:right">0.9808</td>
+<td style="text-align:right">0.9478</td>
+<td style="text-align:right">0.9635</td>
+<td>compression</td>
+</tr>
+<tr>
+<td>simclr_finetune</td>
+<td style="text-align:right">0.9851</td>
+<td style="text-align:right">0.9846</td>
+<td style="text-align:right">0.9785</td>
+<td style="text-align:right">0.9851</td>
+<td style="text-align:right">0.7212</td>
+<td>stain/color</td>
+</tr>
+</tbody>
+</table>
+<h3 id="drop-from-clean-summary">Drop-from-clean summary</h3>
+<table>
+<thead>
+<tr>
+<th>Model family</th>
+<th style="text-align:right">Blur drop</th>
+<th style="text-align:right">Brightness drop</th>
+<th style="text-align:right">Compression drop</th>
+<th style="text-align:right">Stain/color drop</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>supervised_scratch</td>
+<td style="text-align:right">0.0050</td>
+<td style="text-align:right">0.0487</td>
+<td style="text-align:right">0.0221</td>
+<td style="text-align:right">0.4245</td>
+</tr>
+<tr>
+<td>imagenet_finetune</td>
+<td style="text-align:right">0.0027</td>
+<td style="text-align:right">0.0055</td>
+<td style="text-align:right">0.0385</td>
+<td style="text-align:right">0.0227</td>
+</tr>
+<tr>
+<td>simclr_finetune</td>
+<td style="text-align:right">0.0005</td>
+<td style="text-align:right">0.0066</td>
+<td style="text-align:right">0.0000</td>
+<td style="text-align:right">0.2639</td>
+</tr>
+</tbody>
+</table>
+<h3 id="interpretation">Interpretation</h3>
+<p>The robustness analysis shows that:</p>
+<ul>
+<li>scratch is highly vulnerable to stain/color perturbation,</li>
+<li>SimCLR is much stronger than scratch overall, but still displays non-trivial RGB stain/color sensitivity,</li>
+<li>ImageNet is the most robust overall baseline in the current RGB experiments.</li>
+</ul>
+<h3 id="representative-robustness-visuals">Representative robustness visuals</h3>
+<p><em>Figure 9. Full-label robustness drop from clean performance.</em></p>
+<p><img src="file:///Users/shubhdeepdas/Desktop/Paper_Research/Sickel_cell/fig09_stage7_drop_from_clean.png" alt="Stage 7 drop from clean"></p>
+<p><em>Figure 10. Perturbation-wise balanced accuracy across model families.</em></p>
+<p><img src="file:///Users/shubhdeepdas/Desktop/Paper_Research/Sickel_cell/fig10_stage7_perturbation_plot.png" alt="Stage 7 perturbation plot"></p>
+<h2 id="low-label-robustness">Low-Label Robustness</h2>
+<p>The low-label robustness report is now complete in the saved RGB outputs and evaluates all four label fractions.</p>
+<h3 id="clean-low-label-performance-under-the-robustness-protocol">Clean low-label performance under the robustness protocol</h3>
+<table>
+<thead>
+<tr>
+<th>Label fraction</th>
+<th style="text-align:right">Scratch clean</th>
+<th style="text-align:right">SimCLR clean</th>
+<th style="text-align:right">ImageNet clean</th>
+<th style="text-align:right">SimCLR minus scratch</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>100%</td>
+<td style="text-align:right">0.9311</td>
+<td style="text-align:right">0.9873</td>
+<td style="text-align:right">0.9863</td>
+<td style="text-align:right">0.0562</td>
+</tr>
+<tr>
+<td>50%</td>
+<td style="text-align:right">0.8388</td>
+<td style="text-align:right">0.9658</td>
+<td style="text-align:right">0.9895</td>
+<td style="text-align:right">0.1270</td>
+</tr>
+<tr>
+<td>20%</td>
+<td style="text-align:right">0.7745</td>
+<td style="text-align:right">0.9310</td>
+<td style="text-align:right">0.9724</td>
+<td style="text-align:right">0.1565</td>
+</tr>
+<tr>
+<td>10%</td>
+<td style="text-align:right">0.6844</td>
+<td style="text-align:right">0.8791</td>
+<td style="text-align:right">0.9305</td>
+<td style="text-align:right">0.1948</td>
+</tr>
+</tbody>
+</table>
+<h3 id="staincolor-robustness-under-reduced-supervision">Stain/color robustness under reduced supervision</h3>
+<table>
+<thead>
+<tr>
+<th>Label fraction</th>
+<th style="text-align:right">Scratch stain/color</th>
+<th style="text-align:right">SimCLR stain/color</th>
+<th style="text-align:right">ImageNet stain/color</th>
+<th style="text-align:right">SimCLR drop from clean</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>100%</td>
+<td style="text-align:right">0.5066</td>
+<td style="text-align:right">0.9226</td>
+<td style="text-align:right">0.9635</td>
+<td style="text-align:right">0.0648</td>
+</tr>
+<tr>
+<td>50%</td>
+<td style="text-align:right">0.5000</td>
+<td style="text-align:right">0.7212</td>
+<td style="text-align:right">0.9099</td>
+<td style="text-align:right">0.2446</td>
+</tr>
+<tr>
+<td>20%</td>
+<td style="text-align:right">0.5631</td>
+<td style="text-align:right">0.7423</td>
+<td style="text-align:right">0.9530</td>
+<td style="text-align:right">0.1887</td>
+</tr>
+<tr>
+<td>10%</td>
+<td style="text-align:right">0.5018</td>
+<td style="text-align:right">0.7711</td>
+<td style="text-align:right">0.9133</td>
+<td style="text-align:right">0.1080</td>
+</tr>
+</tbody>
+</table>
+<h3 id="interpretation">Interpretation</h3>
+<p>Under label scarcity:</p>
+<ul>
+<li>the SimCLR advantage over scratch persists under perturbation,</li>
+<li>scratch collapses badly under stain/color shifts,</li>
+<li>SimCLR remains clearly better than scratch, though still imperfect under stain/color perturbation,</li>
+<li>ImageNet remains the strongest and most stable baseline overall.</li>
+</ul>
+<h3 id="representative-low-label-robustness-visuals">Representative low-label robustness visuals</h3>
+<p><em>Figure 11. Clean low-label robustness summary.</em></p>
+<p><img src="file:///Users/shubhdeepdas/Desktop/Paper_Research/Sickel_cell/fig11_stage7_low_label_clean.png" alt="Stage 7 low-label clean"></p>
+<p><em>Figure 12. SimCLR gain over scratch in the low-label clean regime.</em></p>
+<p><img src="file:///Users/shubhdeepdas/Desktop/Paper_Research/Sickel_cell/fig12_stage7_low_label_gain_over_scratch.png" alt="Stage 7 low-label gain over scratch"></p>
+<p><em>Figure 13. Overall robustness snapshot combining the main saved RGB findings.</em></p>
+<p><img src="file:///Users/shubhdeepdas/Desktop/Paper_Research/Sickel_cell/fig13_overall_robustness_snapshot.png" alt="Overall robustness snapshot"></p>
+<h2 id="exploratory-grayscale-extension">Exploratory Grayscale Extension</h2>
+<p>The current workspace contains an exploratory grayscale branch under:</p>
+<ul>
+<li><code>stage5_grayscale_outputs/</code></li>
+<li><code>stage6_grayscale_outputs/</code></li>
+</ul>
+<p>These runs convert inputs to grayscale while preserving the 3-channel model interface. This branch is useful for testing whether the models rely primarily on color/stain cues or whether morphology remains predictive after color removal.</p>
+<h3 id="completed-full-label-grayscale-comparison">Completed full-label grayscale comparison</h3>
+<p>The full-label grayscale comparison is available in <code>stage5_grayscale_outputs/stage5_report.md</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Model family</th>
+<th style="text-align:right">Test crop balanced accuracy</th>
+<th style="text-align:right">Test crop ROC AUC</th>
+<th style="text-align:right">Test source balanced accuracy</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>supervised_scratch</td>
+<td style="text-align:right">0.9403</td>
+<td style="text-align:right">0.9889</td>
+<td style="text-align:right">0.9688</td>
+</tr>
+<tr>
+<td>imagenet_finetune</td>
+<td style="text-align:right">0.9950</td>
+<td style="text-align:right">0.9999</td>
+<td style="text-align:right">1.0000</td>
+</tr>
+<tr>
+<td>simclr_finetune</td>
+<td style="text-align:right">0.9928</td>
+<td style="text-align:right">0.9995</td>
+<td style="text-align:right">1.0000</td>
+</tr>
+</tbody>
+</table>
+<h3 id="partial-low-label-grayscale-results-currently-saved">Partial low-label grayscale results currently saved</h3>
+<p>The low-label grayscale directory is only partially complete in the current workspace. The saved completed metrics support the following artifact-backed summary:</p>
+<table>
+<thead>
+<tr>
+<th>Label fraction</th>
+<th style="text-align:right">Scratch balanced accuracy</th>
+<th style="text-align:right">SimCLR balanced accuracy</th>
+<th style="text-align:right">ImageNet balanced accuracy</th>
+<th>Completion status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>100%</td>
+<td style="text-align:right">0.9403</td>
+<td style="text-align:right">0.9928</td>
+<td style="text-align:right">0.9950</td>
+<td>complete</td>
+</tr>
+<tr>
+<td>50%</td>
+<td style="text-align:right">0.8405</td>
+<td style="text-align:right">0.9834</td>
+<td style="text-align:right">0.9868</td>
+<td>complete</td>
+</tr>
+<tr>
+<td>20%</td>
+<td style="text-align:right">0.7570</td>
+<td style="text-align:right">0.9718</td>
+<td style="text-align:right">0.9531</td>
+<td>complete</td>
+</tr>
+<tr>
+<td>10%</td>
+<td style="text-align:right">0.6419</td>
+<td style="text-align:right">not yet saved</td>
+<td style="text-align:right">not yet saved</td>
+<td>partial</td>
+</tr>
+</tbody>
+</table>
+<h3 id="interpretation">Interpretation</h3>
+<p>The grayscale branch suggests that:</p>
+<ul>
+<li>performance does not collapse when color is removed,</li>
+<li>strong morphology signal remains available,</li>
+<li>the low-label SimCLR advantage is not obviously dependent on RGB color alone,</li>
+<li>however, only the saved grayscale artifacts should be cited, because the low-label grayscale branch is not fully complete at <code>10%</code>.</li>
+</ul>
+<h2 id="integrated-scientific-findings">Integrated Scientific Findings</h2>
+<h3 id="what-is-convincingly-demonstrated">What is convincingly demonstrated</h3>
+<ol>
+<li>The Uganda smartphone microscopy data can support a meaningful crop-level binary morphology task.</li>
+<li>Source-level splitting was enforced correctly and avoids a major leakage failure mode.</li>
+<li>The crop-generation pipeline produces enough signal to support both classical and deep-learning baselines.</li>
+<li>In-domain SimCLR materially improves over supervised training from scratch.</li>
+<li>The benefit of SimCLR grows as the amount of labeled data decreases.</li>
+<li>ImageNet fine-tuning remains the strongest overall baseline in the canonical RGB branch.</li>
+<li>Stain/color sensitivity remains the dominant weakness in RGB robustness, especially for scratch and, to a lesser extent, SimCLR.</li>
+</ol>
+<h3 id="best-performing-canonical-rgb-configurations">Best-performing canonical RGB configurations</h3>
+<table>
+<thead>
+<tr>
+<th>Evaluation context</th>
+<th>Best model family</th>
+<th style="text-align:right">Test crop balanced accuracy</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>full-label comparison</td>
+<td>imagenet_finetune</td>
+<td style="text-align:right">0.9863</td>
+</tr>
+<tr>
+<td>low-label 50%</td>
+<td>imagenet_finetune</td>
+<td style="text-align:right">0.9895</td>
+</tr>
+<tr>
+<td>low-label 20%</td>
+<td>imagenet_finetune</td>
+<td style="text-align:right">0.9724</td>
+</tr>
+<tr>
+<td>low-label 10%</td>
+<td>imagenet_finetune</td>
+<td style="text-align:right">0.9305</td>
+</tr>
+</tbody>
+</table>
+<h3 id="best-evidence-that-simclr-is-scientifically-useful">Best evidence that SimCLR is scientifically useful</h3>
+<table>
+<thead>
+<tr>
+<th>Condition</th>
+<th>Evidence</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Full-label RGB</td>
+<td>SimCLR <code>0.9851</code> vs scratch <code>0.9311</code></td>
+</tr>
+<tr>
+<td>50% labels RGB</td>
+<td>SimCLR <code>0.9658</code> vs scratch <code>0.8388</code></td>
+</tr>
+<tr>
+<td>20% labels RGB</td>
+<td>SimCLR <code>0.9310</code> vs scratch <code>0.7745</code></td>
+</tr>
+<tr>
+<td>10% labels RGB</td>
+<td>SimCLR <code>0.8791</code> vs scratch <code>0.6844</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="best-evidence-of-remaining-shortcut-risk">Best evidence of remaining shortcut risk</h3>
+<table>
+<thead>
+<tr>
+<th>Condition</th>
+<th>Evidence</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Full-label scratch stain/color drop</td>
+<td><code>0.4245</code></td>
+</tr>
+<tr>
+<td>Full-label SimCLR stain/color drop</td>
+<td><code>0.2639</code></td>
+</tr>
+<tr>
+<td>50% low-label SimCLR stain/color drop</td>
+<td><code>0.2446</code></td>
+</tr>
+<tr>
+<td>Pool B construction</td>
+<td>heuristic negative-crop generation, not expert-cleaned labels</td>
+</tr>
+</tbody>
+</table>
+<h2 id="study-limitations">Study Limitations</h2>
+<p>The current repository supports strong methodological conclusions, but several caveats remain essential:</p>
+<ol>
+<li>Pool B non-sickled crops are heuristic labels rather than cell-by-cell expert annotations.</li>
+<li>Positive boxes were reconstructed from raster overlays rather than original coordinate files.</li>
+<li>Real stain metadata is not present in the current manifests.</li>
+<li>Robustness results are synthetic perturbation tests, not external hospital or device transfer studies.</li>
+<li>The grayscale branch is exploratory and only partially complete for the low-label setting.</li>
+</ol>
+<h2 id="final-conclusion">Final Conclusion</h2>
+<p>The repository has successfully built a complete crop-level sickle-cell morphology pipeline from raw Uganda smartphone microscopy data through robust downstream evaluation. The most defensible scientific conclusion is:</p>
+<p><strong>In-domain self-supervised learning is clearly useful in this pipeline, especially when labeled data are limited, but ImageNet fine-tuning remains the strongest overall RGB baseline, and stain/color dependence plus label-construction caveats remain the principal limitations.</strong></p>
+<h2 id="primary-artifact-map">Primary Artifact Map</h2>
+<p>The most important files for inspection and reuse are:</p>
+<ul>
+<li><code>eda_outputs/stage1_data_audit.md</code></li>
+<li><code>split_outputs/stage2_split_protocol.md</code></li>
+<li><code>crop_outputs/stage3_crop_creation.md</code></li>
+<li><code>stage4_outputs/stage4_binary_classifier.md</code></li>
+<li><code>stage5_outputs/stage5_report.md</code></li>
+<li><code>stage6_outputs/stage6_report.md</code></li>
+<li><code>stage7_outputs/stage7_report.md</code></li>
+<li><code>stage7_low_label_outputs/stage7_low_label_report.md</code></li>
+<li><code>visual_reports/stage5_stage6_stage7/visual_summary.md</code></li>
+<li><code>docs/COMPLETE_SCIENTIFIC_REPORT.md</code></li>
+</ul>
+
+</body>
+</html>

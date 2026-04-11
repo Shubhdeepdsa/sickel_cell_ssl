@@ -1,0 +1,19 @@
+{
+  "model_root": "/Users/shubhdeepdas/Desktop/Paper_Research/Sickel_cell/stage5_outputs",
+  "output_dir": "/Users/shubhdeepdas/Desktop/Paper_Research/Sickel_cell/interpretability_outputs/stage5_rgb",
+  "device": "mps",
+  "setups": [
+    "supervised_scratch",
+    "imagenet_finetune",
+    "simclr_finetune"
+  ],
+  "selected_samples": [
+    "/Users/shubhdeepdas/Desktop/Paper_Research/Sickel_cell/crop_outputs/pool_a_labeled_sickled/test/A__positive_310__0002.jpg",
+    "/Users/shubhdeepdas/Desktop/Paper_Research/Sickel_cell/crop_outputs/pool_b_labeled_non_sickled/test/B__negative_100__0004.jpg",
+    "/Users/shubhdeepdas/Desktop/Paper_Research/Sickel_cell/crop_outputs/pool_b_labeled_non_sickled/test/B__negative_37__0012.jpg",
+    "/Users/shubhdeepdas/Desktop/Paper_Research/Sickel_cell/crop_outputs/pool_a_labeled_sickled/test/A__positive_20__0009.jpg"
+  ],
+  "occlusion_patch": 32,
+  "occlusion_stride": 32,
+  "top_k_neighbors": 5
+}
