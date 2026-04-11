@@ -588,16 +588,16 @@ The full-label grayscale comparison is available in `stage5_grayscale_outputs/st
 | imagenet_finetune | 0.9950 | 0.9999 | 1.0000 |
 | simclr_finetune | 0.9928 | 0.9995 | 1.0000 |
 
-### Partial low-label grayscale results currently saved
+### Saved low-label grayscale results
 
-The low-label grayscale directory is only partially complete in the current workspace. The saved completed metrics support the following artifact-backed summary:
+The current workspace contains saved low-label grayscale runs for all four fractions:
 
-| Label fraction | Scratch balanced accuracy | SimCLR balanced accuracy | ImageNet balanced accuracy | Completion status |
-|---|---:|---:|---:|---|
-| 100% | 0.9403 | 0.9928 | 0.9950 | complete |
-| 50% | 0.8405 | 0.9834 | 0.9868 | complete |
-| 20% | 0.7570 | 0.9718 | 0.9531 | complete |
-| 10% | 0.6419 | not yet saved | not yet saved | partial |
+| Label fraction | Scratch balanced accuracy | SimCLR balanced accuracy | ImageNet balanced accuracy | SimCLR minus scratch |
+|---|---:|---:|---:|---:|
+| 100% | 0.9403 | 0.9928 | 0.9950 | 0.0525 |
+| 50% | 0.8405 | 0.9834 | 0.9868 | 0.1429 |
+| 20% | 0.7570 | 0.9718 | 0.9531 | 0.2149 |
+| 10% | 0.6419 | 0.9188 | 0.9631 | 0.2769 |
 
 ### Interpretation
 
@@ -606,7 +606,99 @@ The grayscale branch suggests that:
 - performance does not collapse when color is removed,
 - strong morphology signal remains available,
 - the low-label SimCLR advantage is not obviously dependent on RGB color alone,
-- however, only the saved grayscale artifacts should be cited, because the low-label grayscale branch is not fully complete at `10%`.
+- stain/color fragility is greatly reduced once the pipeline is rerun in grayscale.
+
+## XAI And Shortcut Diagnostics
+
+The repository contains an explicit interpretability pipeline under:
+
+- `interpretability_outputs/stage5_rgb/`
+- `interpretability_outputs/stage5_grayscale/`
+
+For each selected sample and each setup, the XAI pipeline generates:
+
+1. `Grad-CAM`
+2. `Occlusion`
+3. `Nearest neighbors`
+4. `Perturbation grids`
+5. `Shortcut-sensitivity plots`
+
+These are useful for answering a narrower question than the aggregate metrics:
+
+**When SimCLR succeeds or fails on an individual crop, does it appear to rely on cell morphology, or is it reacting to nuisance cues such as stain/color, field edges, brightness, or context?**
+
+### How to read the XAI visuals
+
+- `Grad-CAM` highlights the spatial regions that most support the predicted class.
+- `Occlusion` shows where masking a local region most reduces predicted-class confidence.
+- `Nearest neighbors` show which training crops are closest in the learned feature space.
+- `Shortcut-sensitivity` plots show predicted `P[sickled]` under `clean`, `forced_grayscale`, `blurred`, `lower_brightness`, `mild_compression`, and `mild_stain_color`.
+
+The interpretive rule used in this repo is:
+
+- if saliency and occlusion focus mainly on cells and stay stable under nuisance perturbations, that supports morphology use,
+- if saliency spreads into borders/background and confidence flips strongly under color-related perturbations, that suggests shortcut use.
+
+### Representative XAI failure case: `A__positive_20__0009`
+
+This sample is actually `sickled`, but the RGB SimCLR model predicts `non_sickled` with `P[sickled]=0.0245`.
+
+*Figure 14. RGB SimCLR Grad-CAM on the failure case `A__positive_20__0009`.*
+
+![RGB SimCLR failure Grad-CAM](fig14_xai_rgb_failure_gradcam.png)
+
+*Figure 15. RGB SimCLR occlusion map on the same failure case.*
+
+![RGB SimCLR failure occlusion](fig15_xai_rgb_failure_occlusion.png)
+
+*Figure 16. RGB SimCLR nearest-neighbor retrievals for the same failure case.*
+
+![RGB SimCLR failure neighbors](fig16_xai_rgb_failure_neighbors.png)
+
+*Figure 17. RGB shortcut-sensitivity plot for `A__positive_20__0009`.*
+
+![RGB SimCLR failure shortcut sensitivity](fig17_xai_rgb_failure_shortcut_sensitivity.png)
+
+Observed pattern:
+
+- the Grad-CAM hotspot is broad and extends into the lower-left field-edge region rather than isolating only the elongated cells,
+- the occlusion map also emphasizes a broad center-lower region instead of one clearly diagnostic sickled cell,
+- the retrieved neighbors are non-sickled examples with similar pale background and field-edge appearance,
+- the shortcut-sensitivity curve is extremely unstable:
+  - clean: about `0.024`
+  - forced grayscale: about `0.028`
+  - blur/compression: still near zero
+  - mild stain/color: jumps to nearly `0.98`
+
+Interpretation:
+
+- this is strong sample-level evidence that RGB SimCLR is using nuisance appearance cues,
+- the near-complete class reversal under `mild_stain_color` is not what a morphology-only rule would be expected to do,
+- this case supports the claim that SimCLR may be partially "cheating" in the RGB branch.
+
+### Representative XAI ambiguity case: `B__negative_37__0012`
+
+This sample is actually `non_sickled`. In RGB, the SimCLR branch predicts `non_sickled` with only moderate separation and shows large perturbation sensitivity.
+
+*Figure 18. RGB shortcut-sensitivity plot for `B__negative_37__0012`.*
+
+![RGB ambiguous shortcut sensitivity](fig18_xai_rgb_ambiguous_shortcut_sensitivity.png)
+
+*Figure 19. Grayscale shortcut-sensitivity plot for the same sample.*
+
+![Grayscale ambiguous shortcut sensitivity](fig19_xai_grayscale_ambiguous_shortcut_sensitivity.png)
+
+Observed pattern:
+
+- in RGB, the prediction changes sharply under grayscale conversion, brightness change, and stain/color perturbation,
+- in grayscale, the same sample remains much flatter and more stable across perturbations,
+- this matches the repo-wide robustness finding that the RGB branch carries stain/color dependence while the grayscale branch removes most of it.
+
+### XAI conclusion
+
+The XAI outputs do **not** support the strongest claim that SimCLR is only cheating. They support a narrower and more defensible claim:
+
+**The RGB SimCLR branch appears to use a mixture of real morphology signal and nuisance visual cues. On several informative failure or ambiguity cases, the visuals support partial shortcut reliance, especially on stain/color-sensitive samples.**
 
 ## Integrated Scientific Findings
 
@@ -619,6 +711,7 @@ The grayscale branch suggests that:
 5. The benefit of SimCLR grows as the amount of labeled data decreases.
 6. ImageNet fine-tuning remains the strongest overall baseline in the canonical RGB branch.
 7. Stain/color sensitivity remains the dominant weakness in RGB robustness, especially for scratch and, to a lesser extent, SimCLR.
+8. The XAI outputs support partial shortcut reliance in the RGB SimCLR branch, but not a pure-shortcut explanation.
 
 ### Best-performing canonical RGB configurations
 
@@ -646,6 +739,7 @@ The grayscale branch suggests that:
 | Full-label SimCLR stain/color drop | `0.2639` |
 | 50% low-label SimCLR stain/color drop | `0.2446` |
 | Pool B construction | heuristic negative-crop generation, not expert-cleaned labels |
+| XAI failure case `A__positive_20__0009` | RGB SimCLR flips from about `0.024` clean to near `0.98` under mild stain/color perturbation |
 
 ## Study Limitations
 
@@ -655,13 +749,13 @@ The current repository supports strong methodological conclusions, but several c
 2. Positive boxes were reconstructed from raster overlays rather than original coordinate files.
 3. Real stain metadata is not present in the current manifests.
 4. Robustness results are synthetic perturbation tests, not external hospital or device transfer studies.
-5. The grayscale branch is exploratory and only partially complete for the low-label setting.
+5. The XAI analysis is qualitative and based on a small representative sample set rather than a large-scale attribution benchmark.
 
 ## Final Conclusion
 
 The repository has successfully built a complete crop-level sickle-cell morphology pipeline from raw Uganda smartphone microscopy data through robust downstream evaluation. The most defensible scientific conclusion is:
 
-**In-domain self-supervised learning is clearly useful in this pipeline, especially when labeled data are limited, but ImageNet fine-tuning remains the strongest overall RGB baseline, and stain/color dependence plus label-construction caveats remain the principal limitations.**
+**In-domain self-supervised learning is clearly useful in this pipeline, especially when labeled data are limited, but ImageNet fine-tuning remains the strongest overall RGB baseline, and the combined robustness-plus-XAI evidence indicates that the RGB SimCLR branch still relies partly on stain/color/context shortcuts.**
 
 ## Primary Artifact Map
 
