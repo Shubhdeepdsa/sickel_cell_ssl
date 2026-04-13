@@ -9,13 +9,24 @@ wheels/
 # Virtual environments
 .venv
 
-# Datasets
+# Project data and docs
 .DS_Store
 datasets/
 docs/
 uv.lock
 
+# Derived dataset copy
+datasets_masked_resized_1024/
+
+# Generated experiment outputs
 crop_outputs/
+eda_outputs/
+full_image_sliding_window_outputs/
+interpretability_outputs/
+paper_tables/
+visual_reports/
+
+# Model output/checkpoint folders
 stage4_outputs/
 stage5_outputs/
 stage5_grayscale_outputs/
@@ -25,3 +36,24 @@ stage7_outputs/
 stage7_grayscale_outputs/
 stage7_low_label_grayscale_outputs/
 stage7_low_label_outputs/
+
+# Background / border debug sweeps
+background_band_detection_*/
+!background_band_detection_combined_lonly_band50/
+
+# Intermediate isolate runs
+isolate_positive_*/
+!isolate_positive_264_framebg_lonly/
+isolate_two_*/
+!isolate_two_lonly_all_band50/
+
+# Old phase-A prototypes
+phase_a_border_preprocessing_*/
+phase_a_masked_dataset_prototype/
+
+# Temporary / scratch research artifacts
+q1-research-reviewer/
+SCIENTIFIC_REPORT_tmp.html
+TIME_COMPLEXITY_ANALYSIS.md
+
+phase_a_*

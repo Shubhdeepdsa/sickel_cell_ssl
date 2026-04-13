@@ -1,0 +1,11 @@
+source_key,label,band_half_width,resized_width,resized_height,background_sigma,image_type,field_fraction,final_fraction,threshold,use_convex_hull
+positive:20,positive,50,1078,1024,14.6172,gray_halo,0.773092,0.743779,44.2344,True
+positive:68,positive,50,1024,1032,12.8804,gray_halo,0.738508,0.709445,40.7608,True
+positive:96,positive,50,1024,1107,6.2606,black_background,0.770583,0.741547,27.5213,True
+positive:206,positive,50,1024,1028,11.6644,black_background,0.7468,0.71741,38.3287,True
+positive:264,positive,50,1024,1028,10.5767,black_background,0.724088,0.695273,36.1534,True
+negative:30,negative,50,1024,1071,12.0339,gray_halo,0.705857,0.677975,39.0677,True
+negative:37,negative,50,1035,1024,12.1359,gray_halo,0.680247,0.652425,39.2718,True
+negative:48,negative,50,1024,1058,6.99,black_background,0.730284,0.701754,28.98,True
+negative:49,negative,50,1024,1035,6.1231,black_background,0.768897,0.739163,27.2462,True
+negative:50,negative,50,1024,1030,6.1092,black_background,0.727661,0.698802,27.2184,True
