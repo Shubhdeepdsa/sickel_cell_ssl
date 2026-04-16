@@ -1,0 +1,23 @@
+{
+  "band_half_widths": [
+    50
+  ],
+  "n_positive": 5,
+  "n_negative": 5,
+  "distance_offset": 15.0,
+  "morph_radius_ratio": 0.015,
+  "final_mask_erosion_ratio": 0.01,
+  "use_convex_hull": true,
+  "source_keys": [
+    "positive:101",
+    "positive:11",
+    "positive:110",
+    "positive:112",
+    "positive:113",
+    "negative:100",
+    "negative:107",
+    "negative:108",
+    "negative:116",
+    "negative:122"
+  ]
+}

@@ -31,7 +31,12 @@ from prototype_border_preprocessing_pipeline import (
 
 
 def choose_images(project_root: Path, n_positive: int, n_negative: int, source_keys: list[str] | None = None) -> list[dict[str, str]]:
-    rows = read_csv(project_root / "full_image_sliding_window_outputs" / "sampled_source_images.csv")
+    manifest_path = (
+        project_root / "split_outputs" / "source_image_splits.csv"
+        if source_keys
+        else project_root / "full_image_sliding_window_outputs" / "sampled_source_images.csv"
+    )
+    rows = read_csv(manifest_path)
     if source_keys:
         wanted = set(source_keys)
         return [row for row in rows if row["source_key"] in wanted]

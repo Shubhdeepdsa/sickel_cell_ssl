@@ -8,22 +8,8 @@ from pathlib import Path
 
 from PIL import Image
 
-from prototype_border_preprocessing_pipeline import (
-    DEFAULT_BACKGROUND_BAND_HALF_WIDTH,
-    DEFAULT_DISTANCE_OFFSET,
-    DEFAULT_FINAL_MASK_EROSION_RATIO,
-    DEFAULT_MORPH_RADIUS_RATIO,
-    DEFAULT_NORMALIZE_SHORTER_DIM,
-    BackgroundDescriptor,
-    ResizeInfo,
-    erode_mask,
-    estimate_background_descriptor,
-    field_mask_from_background,
-    open_rgb_image,
-    pil_lab_array,
-    resize_image_and_boxes,
-    zero_outside_mask,
-)
+from new_flow_preprocessing_shared import compute_preprocessing_stages
+from prototype_border_preprocessing_pipeline import DEFAULT_BACKGROUND_BAND_HALF_WIDTH, DEFAULT_DISTANCE_OFFSET, DEFAULT_FINAL_MASK_EROSION_RATIO, DEFAULT_MORPH_RADIUS_RATIO, open_rgb_image, resize_image_and_boxes, zero_outside_mask
 
 
 def write_csv(path: Path, rows: list[dict[str, object]]) -> None:
@@ -42,28 +28,6 @@ def resize_with_known_size(image_path: Path, width: int, height: int):
     if image.size == (width, height):
         return image
     return image.resize((width, height), Image.Resampling.BILINEAR)
-
-
-def compute_final_mask(
-    image,
-    background_band_half_width: int,
-    distance_offset: float,
-    morph_radius_ratio: float,
-    final_mask_erosion_ratio: float,
-) -> tuple[BackgroundDescriptor, ResizeInfo, object, object, object, object]:
-    resized_image, _, resize_info = resize_image_and_boxes(image, None, DEFAULT_NORMALIZE_SHORTER_DIM)
-    lab = pil_lab_array(resized_image)
-    descriptor, _, _ = estimate_background_descriptor(lab, band_half_width=background_band_half_width)
-    _, _, _, field_mask, _ = field_mask_from_background(
-        resized_image,
-        descriptor=descriptor,
-        morph_radius_ratio=morph_radius_ratio,
-        distance_offset=distance_offset,
-        use_convex_hull=True,
-    )
-    erosion_radius = max(1, int(round(min(resized_image.size) * final_mask_erosion_ratio)))
-    final_mask = erode_mask(field_mask, erosion_radius)
-    return descriptor, resize_info, resized_image, field_mask, final_mask, erosion_radius
 
 
 def save_rgb(image, output_path: Path) -> None:
@@ -86,7 +50,7 @@ def process_positive_pair(
 ) -> list[dict[str, object]]:
     labelled_path = project_root / "datasets" / "Positive" / "Labelled" / unlabelled_path.name
     raw_image = open_rgb_image(unlabelled_path)
-    descriptor, resize_info, resized_raw, field_mask, final_mask, erosion_radius = compute_final_mask(
+    stages = compute_preprocessing_stages(
         raw_image,
         background_band_half_width=background_band_half_width,
         distance_offset=distance_offset,
@@ -94,9 +58,9 @@ def process_positive_pair(
         final_mask_erosion_ratio=final_mask_erosion_ratio,
     )
 
-    resized_labelled = resize_with_known_size(labelled_path, resize_info.resized_width, resize_info.resized_height)
-    masked_raw = zero_outside_mask(resized_raw, final_mask)
-    masked_labelled = zero_outside_mask(resized_labelled, final_mask)
+    resized_labelled = resize_with_known_size(labelled_path, stages.resize_info.resized_width, stages.resize_info.resized_height)
+    masked_raw = zero_outside_mask(stages.resized_image, stages.final_mask)
+    masked_labelled = zero_outside_mask(resized_labelled, stages.final_mask)
 
     raw_output = output_root / "Positive" / "Unlabelled" / unlabelled_path.name
     labelled_output = output_root / "Positive" / "Labelled" / labelled_path.name
@@ -109,17 +73,17 @@ def process_positive_pair(
         "distance_offset": distance_offset,
         "morph_radius_ratio": morph_radius_ratio,
         "final_mask_erosion_ratio": final_mask_erosion_ratio,
-        "erosion_radius_px": erosion_radius,
-        "image_type": descriptor.image_type,
-        "background_sigma": round(descriptor.sigma_l, 6),
-        "field_fraction": round(float(field_mask.mean()), 6),
-        "final_fraction": round(float(final_mask.mean()), 6),
-        "original_width": resize_info.original_width,
-        "original_height": resize_info.original_height,
-        "resized_width": resize_info.resized_width,
-        "resized_height": resize_info.resized_height,
-        "scale_x": round(resize_info.scale_x, 6),
-        "scale_y": round(resize_info.scale_y, 6),
+        "erosion_radius_px": stages.erosion_radius,
+        "image_type": stages.descriptor.image_type,
+        "background_sigma": round(stages.descriptor.sigma_l, 6),
+        "field_fraction": round(float(stages.field_mask.mean()), 6),
+        "final_fraction": round(float(stages.final_mask.mean()), 6),
+        "original_width": stages.resize_info.original_width,
+        "original_height": stages.resize_info.original_height,
+        "resized_width": stages.resize_info.resized_width,
+        "resized_height": stages.resize_info.resized_height,
+        "scale_x": round(stages.resize_info.scale_x, 6),
+        "scale_y": round(stages.resize_info.scale_y, 6),
     }
     return [
         {
@@ -147,14 +111,14 @@ def process_negative_image(
     final_mask_erosion_ratio: float,
 ) -> dict[str, object]:
     image = open_rgb_image(negative_path)
-    descriptor, resize_info, resized_image, field_mask, final_mask, erosion_radius = compute_final_mask(
+    stages = compute_preprocessing_stages(
         image,
         background_band_half_width=background_band_half_width,
         distance_offset=distance_offset,
         morph_radius_ratio=morph_radius_ratio,
         final_mask_erosion_ratio=final_mask_erosion_ratio,
     )
-    masked = zero_outside_mask(resized_image, final_mask)
+    masked = zero_outside_mask(stages.resized_image, stages.final_mask)
     output_path = output_root / "Negative" / "Clear" / negative_path.name
     save_rgb(masked, output_path)
     return {
@@ -166,17 +130,17 @@ def process_negative_image(
         "distance_offset": distance_offset,
         "morph_radius_ratio": morph_radius_ratio,
         "final_mask_erosion_ratio": final_mask_erosion_ratio,
-        "erosion_radius_px": erosion_radius,
-        "image_type": descriptor.image_type,
-        "background_sigma": round(descriptor.sigma_l, 6),
-        "field_fraction": round(float(field_mask.mean()), 6),
-        "final_fraction": round(float(final_mask.mean()), 6),
-        "original_width": resize_info.original_width,
-        "original_height": resize_info.original_height,
-        "resized_width": resize_info.resized_width,
-        "resized_height": resize_info.resized_height,
-        "scale_x": round(resize_info.scale_x, 6),
-        "scale_y": round(resize_info.scale_y, 6),
+        "erosion_radius_px": stages.erosion_radius,
+        "image_type": stages.descriptor.image_type,
+        "background_sigma": round(stages.descriptor.sigma_l, 6),
+        "field_fraction": round(float(stages.field_mask.mean()), 6),
+        "final_fraction": round(float(stages.final_mask.mean()), 6),
+        "original_width": stages.resize_info.original_width,
+        "original_height": stages.resize_info.original_height,
+        "resized_width": stages.resize_info.resized_width,
+        "resized_height": stages.resize_info.resized_height,
+        "scale_x": round(stages.resize_info.scale_x, 6),
+        "scale_y": round(stages.resize_info.scale_y, 6),
     }
 
 
