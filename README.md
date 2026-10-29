@@ -74,13 +74,35 @@ The repository also contains an exploratory grayscale branch, but the primary ca
 
 ## Cohort Assembly and Data Characterization
 
-### Data source
+### Data Source and Acquisition
 
-The experiments use the Uganda smartphone microscopy dataset located under:
+The experiments use the **Uganda Smartphone Microscopy Sickle Cell Dataset**:
+- **Source:** [Kaggle - florencetushabe/sickle-cell-disease-dataset](https://www.kaggle.com/datasets/florencetushabe/sickle-cell-disease-dataset)
+- **Principal Authors / Curators:** Prof. Florence Tushabe, Samuel Mwesige, Vicent Kasule, David Areu, Philip Mutabazi, Emily Nsimire, Sarah Cheptoek Musani, and Emmanuel Othieno (Soroti University, Uganda).
+- **Clinical Origin:** Blood smear samples collected from Kumi Hospital, Soroti Regional Referral Hospital, and Soroti University in eastern Uganda. Samples were prepared with Field and Leishman stains and captured using smartphone cameras attached to standard compound light microscopes.
+- **Repository Directory:** Placed under `./datasets/` (configured in `config.yaml`).
 
-- `datasets/Positive/Labelled`
-- `datasets/Positive/Unlabelled`
-- `datasets/Negative/Clear`
+#### Automated Setup / Download
+To download and verify the dataset into `./datasets/`:
+```bash
+# Requires kagglehub (pip install kagglehub)
+python download_dataset.py
+```
+Or manually via the Kaggle CLI:
+```bash
+kaggle datasets download -d florencetushabe/sickle-cell-disease-dataset --unzip -p datasets/
+```
+
+> [!IMPORTANT]
+> **Data Privacy and Version Control:**
+> All raw images under `datasets/` and derived images (`datasets_masked_resized_1024/`) are explicitly excluded in `.gitignore` to ensure patient microscopy image files are never accidentally committed or tracked in Git.
+
+### Expected Directory Layout and File Counts
+
+- `datasets/Positive/Labelled/` (422 images): Smartphone micrographs with black rectangular box overlays indicating sickled cells.
+- `datasets/Positive/Unlabelled/` (422 images): Matching raw smartphone micrographs without bounding box overlays.
+- `datasets/Negative/Clear/` (147 images): Raw smartphone micrographs from negative/normal blood smears.
+- **Total Scanned Files:** 991 images (569 unique source images for modeling).
 
 ### Image audit summary
 

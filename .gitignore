@@ -12,6 +12,9 @@ wheels/
 # Project data and docs
 .DS_Store
 datasets/
+datasets*/
+*.zip
+*.tar.gz
 docs/
 uv.lock
 
