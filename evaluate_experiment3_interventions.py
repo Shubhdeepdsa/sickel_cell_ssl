@@ -21,7 +21,6 @@ import numpy as np
 import torch
 import torch.nn as nn
 from PIL import Image, ImageFilter
-from sklearn.metrics import accuracy_score, balanced_accuracy_score, confusion_matrix
 from torch.utils.data import DataLoader, Dataset
 from torchvision import models, transforms
 
@@ -236,7 +235,7 @@ def run_experiment_3_interventions(
         sub_yt = y_true[mask]
         sub_po = p_orig[mask]
         sub_pred = (sub_po >= 0.50).astype(int)
-        acc = accuracy_score(sub_yt, sub_pred)
+        acc = float(np.mean(sub_yt == sub_pred))
         subgroup_results[name] = {
             "n_crops": int(np.sum(mask)),
             "accuracy": float(acc),

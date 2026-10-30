@@ -28,13 +28,6 @@ import numpy as np
 import torch
 import torch.nn as nn
 from PIL import Image
-from sklearn.metrics import (
-    accuracy_score,
-    balanced_accuracy_score,
-    confusion_matrix,
-    f1_score,
-    roc_auc_score,
-)
 from torch.utils.data import DataLoader, Dataset
 from torchvision import models, transforms
 from torchvision.models import ResNet18_Weights
@@ -228,16 +221,29 @@ def evaluate_loader(
 
 
 def compute_metrics(y_true: np.ndarray, y_pred: np.ndarray, y_score: np.ndarray) -> dict[str, float]:
-    cm = confusion_matrix(y_true, y_pred, labels=[0, 1])
-    tn, fp, fn, tp = cm.ravel()
+    tp = int(np.sum((y_true == 1) & (y_pred == 1)))
+    tn = int(np.sum((y_true == 0) & (y_pred == 0)))
+    fp = int(np.sum((y_true == 0) & (y_pred == 1)))
+    fn = int(np.sum((y_true == 1) & (y_pred == 0)))
+    total = len(y_true)
+
     tpr = tp / (tp + fn) if (tp + fn) > 0 else 0.0
     tnr = tn / (tn + fp) if (tn + fp) > 0 else 0.0
     bal_acc = 0.5 * (tpr + tnr)
-    acc = accuracy_score(y_true, y_pred)
-    f1 = f1_score(y_true, y_pred, zero_division=0)
-    try:
-        auc = roc_auc_score(y_true, y_score)
-    except Exception:
+    acc = (tp + tn) / total if total > 0 else 0.0
+    f1 = 2 * tp / (2 * tp + fp + fn) if (2 * tp + fp + fn) > 0 else 0.0
+
+    # Trapezoidal ROC AUC in pure NumPy
+    if len(np.unique(y_true)) > 1:
+        desc_indices = np.argsort(y_score)[::-1]
+        y_sorted = y_true[desc_indices]
+        tps = np.cumsum(y_sorted == 1)
+        fps = np.cumsum(y_sorted == 0)
+        tpr_curve = tps / tps[-1]
+        fpr_curve = fps / fps[-1]
+        # trapezoidal rule
+        auc = float(np.sum((fpr_curve[1:] - fpr_curve[:-1]) * (tpr_curve[1:] + tpr_curve[:-1]) / 2.0))
+    else:
         auc = 0.5
 
     return {
@@ -247,10 +253,10 @@ def compute_metrics(y_true: np.ndarray, y_pred: np.ndarray, y_score: np.ndarray)
         "non_sickled_spec_tnr": float(tnr),
         "f1": float(f1),
         "roc_auc": float(auc),
-        "tp": int(tp),
-        "tn": int(tn),
-        "fp": int(fp),
-        "fn": int(fn),
+        "tp": tp,
+        "tn": tn,
+        "fp": fp,
+        "fn": fn,
     }
 
 
@@ -448,7 +454,14 @@ def run_training_experiment(
     y_val_true, _, y_val_score, _, val_sources, _ = evaluate_loader(model, val_loader, device)
     best_th, best_th_val_ba = 0.50, 0.0
     for th in np.linspace(0.1, 0.9, 81):
-        ba = balanced_accuracy_score(y_val_true, (y_val_score >= th).astype(int))
+        pred_th = (y_val_score >= th).astype(int)
+        tp_th = np.sum((y_val_true == 1) & (pred_th == 1))
+        fn_th = np.sum((y_val_true == 1) & (pred_th == 0))
+        tn_th = np.sum((y_val_true == 0) & (pred_th == 0))
+        fp_th = np.sum((y_val_true == 0) & (pred_th == 1))
+        tpr_th = tp_th / (tp_th + fn_th) if (tp_th + fn_th) > 0 else 0.0
+        tnr_th = tn_th / (tn_th + fp_th) if (tn_th + fp_th) > 0 else 0.0
+        ba = 0.5 * (tpr_th + tnr_th)
         if ba > best_th_val_ba:
             best_th_val_ba, best_th = ba, float(th)
 
