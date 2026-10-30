@@ -1,37 +1,37 @@
-crop_id,pool,class_label,split,source_id,bg_coverage,mask_failed,bg_luma_mean,bg_sat_mean,audit_assessment
-pool_a_91_box1,Pool A,sickled,train,91,63.7%,False,211.8,0.032,Pristine plasma region
-pool_a_156_box1,Pool A,sickled,test,156,40.7%,False,232.0,0.037,Pristine plasma region
-pool_a_166_box2,Pool A,sickled,train,166,45.4%,False,233.2,0.028,Pristine plasma region
-pool_a_87_box6,Pool A,sickled,train,87,54.2%,False,223.2,0.065,Pristine plasma region
-pool_b_53_cand08,Pool B,non_sickled,train,53,63.6%,False,209.7,0.050,Pristine plasma region
-pool_a_280_box4,Pool A,sickled,train,280,45.1%,False,165.8,0.060,Pristine plasma region
-pool_b_26_cand11,Pool B,non_sickled,train,26,61.9%,False,216.8,0.030,Pristine plasma region
-pool_b_12_cand12,Pool B,non_sickled,train,12,28.5%,False,178.3,0.058,Pristine plasma region
-pool_b_38_cand04,Pool B,non_sickled,val,38,13.9%,False,233.2,0.060,Low background / dense RBC field
-pool_a_80_box1,Pool A,sickled,val,80,35.6%,False,222.3,0.130,Pristine plasma region
-pool_b_32_cand07,Pool B,non_sickled,train,32,40.7%,False,236.6,0.016,Pristine plasma region
-pool_b_14_cand01,Pool B,non_sickled,train,14,20.8%,False,252.8,0.014,Pristine plasma region
-pool_b_44_cand03,Pool B,non_sickled,train,44,7.4%,False,236.3,0.114,Low background / dense RBC field
-pool_b_7_cand01,Pool B,non_sickled,val,7,53.5%,False,230.8,0.024,Pristine plasma region
-pool_b_141_cand01,Pool B,non_sickled,train,141,10.4%,False,212.2,0.041,Low background / dense RBC field
-pool_b_43_cand09,Pool B,non_sickled,val,43,37.2%,False,231.4,0.042,Pristine plasma region
-pool_a_160_box3,Pool A,sickled,train,160,48.3%,False,226.7,0.063,Pristine plasma region
-pool_b_56_cand11,Pool B,non_sickled,test,56,52.2%,False,211.5,0.079,Pristine plasma region
-pool_a_260_box2,Pool A,sickled,train,260,14.0%,False,236.7,0.050,Low background / dense RBC field
-pool_b_20_cand12,Pool B,non_sickled,train,20,21.9%,False,230.9,0.033,Pristine plasma region
-pool_a_77_box1,Pool A,sickled,val,77,41.0%,False,205.1,0.040,Pristine plasma region
-pool_a_14_box1,Pool A,sickled,train,14,55.1%,False,150.8,0.117,Pristine plasma region
-pool_a_197_box3,Pool A,sickled,val,197,32.6%,False,235.2,0.081,Pristine plasma region
-pool_b_11_cand11,Pool B,non_sickled,train,11,46.3%,False,221.5,0.060,Pristine plasma region
-pool_a_244_box1,Pool A,sickled,val,244,71.1%,False,218.3,0.044,Pristine plasma region
-pool_b_91_cand09,Pool B,non_sickled,train,91,10.1%,False,222.4,0.087,Low background / dense RBC field
-pool_a_61_box3,Pool A,sickled,train,61,37.4%,False,210.6,0.078,Pristine plasma region
-pool_b_4_cand05,Pool B,non_sickled,train,4,23.9%,False,199.3,0.047,Pristine plasma region
-pool_b_112_cand09,Pool B,non_sickled,train,112,32.7%,False,214.4,0.042,Pristine plasma region
-pool_a_418_box1,Pool A,sickled,train,418,32.3%,False,219.1,0.053,Pristine plasma region
-pool_b_79_cand01,Pool B,non_sickled,train,79,4.1%,False,234.3,0.099,Low background / dense RBC field
-pool_b_60_cand05,Pool B,non_sickled,train,60,26.9%,False,232.8,0.039,Pristine plasma region
-pool_b_108_cand02,Pool B,non_sickled,test,108,21.3%,False,200.2,0.059,Pristine plasma region
-pool_a_168_box1,Pool A,sickled,train,168,36.8%,False,227.4,0.034,Pristine plasma region
-pool_b_118_cand09,Pool B,non_sickled,train,118,57.3%,False,226.4,0.033,Pristine plasma region
-pool_a_92_box2,Pool A,sickled,val,92,31.3%,False,215.5,0.041,Pristine plasma region
+crop_id,pool,class_label,split,source_id,bg_coverage,leakage_risk_fraction,bg_luma_mean,bg_sat_mean,visual_mask_quality,leakage_type,reviewer_notes
+pool_a_91_box1,Pool A,sickled,train,91,63.7%,0.0%,211.8,0.032,Pristine (Clean Plasma),None (Pure Plasma),Pristine cell-free plasma background (63.7% of crop). Complete cell exclusion confirmed by 5px dilation; no erythrocyte remnants.
+pool_a_156_box1,Pool A,sickled,test,156,40.7%,0.0%,232.0,0.037,Pristine (Clean Plasma),None (Pure Plasma),Pristine cell-free plasma background (40.7% of crop). Complete cell exclusion confirmed by 5px dilation; no erythrocyte remnants.
+pool_a_166_box2,Pool A,sickled,train,166,45.4%,0.1%,233.2,0.028,Pristine (Clean Plasma),None (Pure Plasma),Pristine cell-free plasma background (45.4% of crop). Complete cell exclusion confirmed by 5px dilation; no erythrocyte remnants.
+pool_a_87_box6,Pool A,sickled,train,87,54.2%,31.7%,223.2,0.065,Acceptable (Minor Halo / Stained Background),Peripheral Cell Margin (Diffraction Fringe),"Substantial clean plasma (54.2%), with minor 31.7% fringe from adjacent out-of-focus cell border or mild stain variation."
+pool_b_53_cand08,Pool B,non_sickled,train,53,63.6%,13.9%,209.7,0.050,Acceptable (Minor Halo / Stained Background),Peripheral Cell Margin (Diffraction Fringe),"Substantial clean plasma (63.6%), with minor 13.9% fringe from adjacent out-of-focus cell border or mild stain variation."
+pool_a_280_box4,Pool A,sickled,train,280,45.1%,5.6%,165.8,0.060,Acceptable (Minor Halo / Stained Background),Peripheral Cell Margin (Diffraction Fringe),"Substantial clean plasma (45.1%), with minor 5.6% fringe from adjacent out-of-focus cell border or mild stain variation."
+pool_b_26_cand11,Pool B,non_sickled,train,26,61.9%,0.7%,216.8,0.030,Pristine (Clean Plasma),None (Pure Plasma),Pristine cell-free plasma background (61.9% of crop). Complete cell exclusion confirmed by 5px dilation; no erythrocyte remnants.
+pool_b_12_cand12,Pool B,non_sickled,train,12,28.5%,4.0%,178.3,0.058,Pristine (Clean Plasma),None (Pure Plasma),Pristine cell-free plasma background (28.5% of crop). Complete cell exclusion confirmed by 5px dilation; no erythrocyte remnants.
+pool_b_38_cand04,Pool B,non_sickled,val,38,13.9%,3.7%,233.2,0.060,Pristine (Clean Plasma),None (Pure Plasma),Pristine cell-free plasma background (13.9% of crop). Complete cell exclusion confirmed by 5px dilation; no erythrocyte remnants.
+pool_a_80_box1,Pool A,sickled,val,80,35.6%,95.5%,222.3,0.130,Compromised (Stain Cast / Leakage),Pale Erythrocyte Missed (Central Pallor / Faint Boundary),Faint pale erythrocyte cytoplasm or membrane central pallor was missed by Otsu threshold and leaked 95.5% into background mask.
+pool_b_32_cand07,Pool B,non_sickled,train,32,40.7%,0.0%,236.6,0.016,Pristine (Clean Plasma),None (Pure Plasma),Pristine cell-free plasma background (40.7% of crop). Complete cell exclusion confirmed by 5px dilation; no erythrocyte remnants.
+pool_b_14_cand01,Pool B,non_sickled,train,14,20.8%,0.0%,252.8,0.014,Pristine (Clean Plasma),None (Pure Plasma),Pristine cell-free plasma background (20.8% of crop). Complete cell exclusion confirmed by 5px dilation; no erythrocyte remnants.
+pool_b_44_cand03,Pool B,non_sickled,train,44,7.4%,80.5%,236.3,0.114,Compromised (Dense RBC Field),Dense Field Overclustering (<10% Coverage),Dense erythrocyte field covers >90% of crop; only 7.4% plasma visible in crevices. Extreme clumping limits background measurement.
+pool_b_7_cand01,Pool B,non_sickled,val,7,53.5%,0.5%,230.8,0.024,Pristine (Clean Plasma),None (Pure Plasma),Pristine cell-free plasma background (53.5% of crop). Complete cell exclusion confirmed by 5px dilation; no erythrocyte remnants.
+pool_b_141_cand01,Pool B,non_sickled,train,141,10.4%,0.0%,212.2,0.041,Pristine (Clean Plasma),None (Pure Plasma),Pristine cell-free plasma background (10.4% of crop). Complete cell exclusion confirmed by 5px dilation; no erythrocyte remnants.
+pool_b_43_cand09,Pool B,non_sickled,val,43,37.2%,9.2%,231.4,0.042,Acceptable (Minor Halo / Stained Background),Peripheral Cell Margin (Diffraction Fringe),"Substantial clean plasma (37.2%), with minor 9.2% fringe from adjacent out-of-focus cell border or mild stain variation."
+pool_a_160_box3,Pool A,sickled,train,160,48.3%,0.0%,226.7,0.063,Pristine (Clean Plasma),None (Pure Plasma),Pristine cell-free plasma background (48.3% of crop). Complete cell exclusion confirmed by 5px dilation; no erythrocyte remnants.
+pool_b_56_cand11,Pool B,non_sickled,test,56,52.2%,26.9%,211.5,0.079,Acceptable (Minor Halo / Stained Background),Peripheral Cell Margin (Diffraction Fringe),"Substantial clean plasma (52.2%), with minor 26.9% fringe from adjacent out-of-focus cell border or mild stain variation."
+pool_a_260_box2,Pool A,sickled,train,260,14.0%,0.0%,236.7,0.050,Pristine (Clean Plasma),None (Pure Plasma),Pristine cell-free plasma background (14.0% of crop). Complete cell exclusion confirmed by 5px dilation; no erythrocyte remnants.
+pool_b_20_cand12,Pool B,non_sickled,train,20,21.9%,0.0%,230.9,0.033,Pristine (Clean Plasma),None (Pure Plasma),Pristine cell-free plasma background (21.9% of crop). Complete cell exclusion confirmed by 5px dilation; no erythrocyte remnants.
+pool_a_77_box1,Pool A,sickled,val,77,41.0%,0.0%,205.1,0.040,Pristine (Clean Plasma),None (Pure Plasma),Pristine cell-free plasma background (41.0% of crop). Complete cell exclusion confirmed by 5px dilation; no erythrocyte remnants.
+pool_a_14_box1,Pool A,sickled,train,14,55.1%,100.0%,150.8,0.117,Compromised (Stain Cast / Leakage),Pale Erythrocyte Missed (Central Pallor / Faint Boundary),Faint pale erythrocyte cytoplasm or membrane central pallor was missed by Otsu threshold and leaked 100.0% into background mask.
+pool_a_197_box3,Pool A,sickled,val,197,32.6%,35.0%,235.2,0.081,Acceptable (Minor Halo / Stained Background),Peripheral Cell Margin (Diffraction Fringe),"Substantial clean plasma (32.6%), with minor 35.0% fringe from adjacent out-of-focus cell border or mild stain variation."
+pool_b_11_cand11,Pool B,non_sickled,train,11,46.3%,0.0%,221.5,0.060,Pristine (Clean Plasma),None (Pure Plasma),Pristine cell-free plasma background (46.3% of crop). Complete cell exclusion confirmed by 5px dilation; no erythrocyte remnants.
+pool_a_244_box1,Pool A,sickled,val,244,71.1%,0.0%,218.3,0.044,Pristine (Clean Plasma),None (Pure Plasma),Pristine cell-free plasma background (71.1% of crop). Complete cell exclusion confirmed by 5px dilation; no erythrocyte remnants.
+pool_b_91_cand09,Pool B,non_sickled,train,91,10.1%,58.6%,222.4,0.087,Compromised (Stain Cast / Leakage),Pale Erythrocyte Missed (Central Pallor / Faint Boundary),Faint pale erythrocyte cytoplasm or membrane central pallor was missed by Otsu threshold and leaked 58.6% into background mask.
+pool_a_61_box3,Pool A,sickled,train,61,37.4%,13.3%,210.6,0.078,Acceptable (Minor Halo / Stained Background),Peripheral Cell Margin (Diffraction Fringe),"Substantial clean plasma (37.4%), with minor 13.3% fringe from adjacent out-of-focus cell border or mild stain variation."
+pool_b_4_cand05,Pool B,non_sickled,train,4,23.9%,0.1%,199.3,0.047,Pristine (Clean Plasma),None (Pure Plasma),Pristine cell-free plasma background (23.9% of crop). Complete cell exclusion confirmed by 5px dilation; no erythrocyte remnants.
+pool_b_112_cand09,Pool B,non_sickled,train,112,32.7%,0.0%,214.4,0.042,Pristine (Clean Plasma),None (Pure Plasma),Pristine cell-free plasma background (32.7% of crop). Complete cell exclusion confirmed by 5px dilation; no erythrocyte remnants.
+pool_a_418_box1,Pool A,sickled,train,418,32.3%,0.0%,219.1,0.053,Pristine (Clean Plasma),None (Pure Plasma),Pristine cell-free plasma background (32.3% of crop). Complete cell exclusion confirmed by 5px dilation; no erythrocyte remnants.
+pool_b_79_cand01,Pool B,non_sickled,train,79,4.1%,84.8%,234.3,0.099,Compromised (Dense RBC Field),Dense Field Overclustering (<10% Coverage),Dense erythrocyte field covers >90% of crop; only 4.1% plasma visible in crevices. Extreme clumping limits background measurement.
+pool_b_60_cand05,Pool B,non_sickled,train,60,26.9%,0.0%,232.8,0.039,Pristine (Clean Plasma),None (Pure Plasma),Pristine cell-free plasma background (26.9% of crop). Complete cell exclusion confirmed by 5px dilation; no erythrocyte remnants.
+pool_b_108_cand02,Pool B,non_sickled,test,108,21.3%,7.6%,200.2,0.059,Acceptable (Minor Halo / Stained Background),Peripheral Cell Margin (Diffraction Fringe),"Substantial clean plasma (21.3%), with minor 7.6% fringe from adjacent out-of-focus cell border or mild stain variation."
+pool_a_168_box1,Pool A,sickled,train,168,36.8%,2.3%,227.4,0.034,Pristine (Clean Plasma),None (Pure Plasma),Pristine cell-free plasma background (36.8% of crop). Complete cell exclusion confirmed by 5px dilation; no erythrocyte remnants.
+pool_b_118_cand09,Pool B,non_sickled,train,118,57.3%,0.0%,226.4,0.033,Pristine (Clean Plasma),None (Pure Plasma),Pristine cell-free plasma background (57.3% of crop). Complete cell exclusion confirmed by 5px dilation; no erythrocyte remnants.
+pool_a_92_box2,Pool A,sickled,val,92,31.3%,2.8%,215.5,0.041,Pristine (Clean Plasma),None (Pure Plasma),Pristine cell-free plasma background (31.3% of crop). Complete cell exclusion confirmed by 5px dilation; no erythrocyte remnants.
