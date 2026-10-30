@@ -38,10 +38,10 @@ However, linear shortcut *availability* in the data does not prove that deep con
 
 ### 2.2 Source-Split Integrity Verification
 - Source images are strictly partitioned without patient/image overlap:
-  - **Train**: 1,931 crops (Pool A: 885, Pool B: 1,046) across 388 sources.
-  - **Validation**: 382 crops (Pool A: 182, Pool B: 200) across 74 sources.
-  - **Test**: 404 crops (Pool A: 182, Pool B: 222) across 81 sources.
-- No source image appears in more than one split partition.
+  - **Train**: 1,931 crops (Pool A: 917, Pool B: 1,014) across 382 candidate-bearing source images.
+  - **Validation**: 382 crops (Pool A: 150, Pool B: 232) across 80 candidate-bearing source images.
+  - **Test**: 404 crops (Pool A: 182, Pool B: 222) across 81 candidate-bearing source images.
+- No source image appears in more than one split partition (0 leakage across splits verified).
 
 ---
 
