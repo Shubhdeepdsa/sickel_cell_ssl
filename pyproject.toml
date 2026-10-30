@@ -1,10 +1,12 @@
 [project]
 name = "sickel-cell"
 version = "0.1.0"
-description = "Add your description here"
+description = "Smartphone microscopy sickle-cell disease classification and shortcut reliability audit"
 readme = "README.md"
 requires-python = ">=3.12"
+license = { text = "MIT" }
 dependencies = [
+    "kagglehub>=0.3.0",
     "matplotlib>=3.10.8",
     "numpy>=2.4.4",
     "pandas>=3.0.2",

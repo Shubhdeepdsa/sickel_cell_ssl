@@ -16,7 +16,6 @@ datasets*/
 *.zip
 *.tar.gz
 docs/
-uv.lock
 
 # Derived dataset copy
 datasets_masked_resized_1024/
