@@ -1,0 +1,54 @@
+{
+  "subgroup_stratification": {
+    "stratum_1_sickled_clean": {
+      "n_crops": 168,
+      "accuracy": 0.9940476190476191,
+      "mean_p_sickled": 0.9936101712242124,
+      "std_p_sickled": 0.07539339817700434
+    },
+    "stratum_2_sickled_border": {
+      "n_crops": 14,
+      "accuracy": 1.0,
+      "mean_p_sickled": 0.9959463817732674,
+      "std_p_sickled": 0.011891453677080206
+    },
+    "stratum_3_non_sickled_clean": {
+      "n_crops": 152,
+      "accuracy": 0.993421052631579,
+      "mean_p_sickled": 0.012649215945241061,
+      "std_p_sickled": 0.06279621599590209
+    },
+    "stratum_4_non_sickled_border": {
+      "n_crops": 70,
+      "accuracy": 1.0,
+      "mean_p_sickled": 0.0031958197482156083,
+      "std_p_sickled": 0.022927419429225587
+    }
+  },
+  "perimeter_border_intervention": {
+    "border_non_sickled_mean_delta_p": 0.04465955801966131,
+    "border_non_sickled_95_ci": [
+      0.011918670269607025,
+      0.08858938783775208
+    ],
+    "border_flip_rate_to_sickled": 0.02857142857142857,
+    "control_clean_non_sickled_mean_delta_p": 0.04726921629757935,
+    "control_clean_95_ci": [
+      0.019873533699558805,
+      0.07897565759918974
+    ],
+    "control_flip_rate_to_sickled": 0.039473684210526314
+  },
+  "plasma_equalization_intervention": {
+    "plasma_mean_delta_p": 0.004352479934695263,
+    "plasma_95_ci": [
+      -0.0009308455074825409,
+      0.012361395450665348
+    ],
+    "photo_control_mean_delta_p": 0.0010079404496700051,
+    "photo_control_95_ci": [
+      -8.419363458914883e-05,
+      0.0025467973717486986
+    ]
+  }
+}

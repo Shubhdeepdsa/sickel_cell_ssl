@@ -1,0 +1,72 @@
+{
+  "model_name": "Experiment 3 \u2014 ImageNet ResNet-18 Reference Model",
+  "checkpoint_sha256": "83cd725076f60899bea0dfe4b7bbaa729ff82a60293b4e799d3082a6ae0419bb",
+  "best_epoch": 13,
+  "validation_metrics": {
+    "best_val_bal_acc_default": 0.9978448275862069,
+    "best_val_bal_acc_tuned": 0.9978448275862069,
+    "tuned_threshold": 0.5
+  },
+  "test_crop_metrics_default_th50": {
+    "accuracy": 0.995049504950495,
+    "balanced_accuracy": 0.995000495000495,
+    "sickled_recall_tpr": 0.9945054945054945,
+    "non_sickled_spec_tnr": 0.9954954954954955,
+    "f1": 0.9945054945054945,
+    "roc_auc": 0.9997029997029997,
+    "tp": 181,
+    "tn": 221,
+    "fp": 1,
+    "fn": 1
+  },
+  "test_crop_metrics_tuned_th": {
+    "accuracy": 0.995049504950495,
+    "balanced_accuracy": 0.995000495000495,
+    "sickled_recall_tpr": 0.9945054945054945,
+    "non_sickled_spec_tnr": 0.9954954954954955,
+    "f1": 0.9945054945054945,
+    "roc_auc": 0.9997029997029997,
+    "tp": 181,
+    "tn": 221,
+    "fp": 1,
+    "fn": 1
+  },
+  "test_source_metrics_default_th50": {
+    "accuracy": 1.0,
+    "balanced_accuracy": 1.0,
+    "sickled_recall_tpr": 1.0,
+    "non_sickled_spec_tnr": 1.0,
+    "f1": 1.0,
+    "roc_auc": 1.0,
+    "tp": 59,
+    "tn": 22,
+    "fp": 0,
+    "fn": 0
+  },
+  "test_source_metrics_tuned_th": {
+    "accuracy": 1.0,
+    "balanced_accuracy": 1.0,
+    "sickled_recall_tpr": 1.0,
+    "non_sickled_spec_tnr": 1.0,
+    "f1": 1.0,
+    "roc_auc": 1.0,
+    "tp": 59,
+    "tn": 22,
+    "fp": 0,
+    "fn": 0
+  },
+  "dataset_split_counts": {
+    "train": 1931,
+    "val": 382,
+    "test": 404
+  },
+  "hardware": {
+    "platform": "macOS-27.2-arm64-arm-64bit",
+    "machine": "arm64",
+    "python_version": "3.12.14",
+    "torch_version": "2.14.1",
+    "mps_built": true,
+    "mps_available": true,
+    "selected_device": "mps"
+  }
+}

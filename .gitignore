@@ -37,6 +37,8 @@ paper_tables/
 visual_reports/
 
 # Model output/checkpoint folders
+*.pt
+*.pth
 stage4_outputs/
 stage5_outputs/
 stage5_grayscale_outputs/
