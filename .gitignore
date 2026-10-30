@@ -26,6 +26,8 @@ crop_outputs/
 experiment_1_inspection_outputs/crops/
 experiment_1_inspection_outputs/*.png
 experiment_1_inspection_outputs/*.jpg
+experiment_2_confound_outputs/*.png
+experiment_2_confound_outputs/*.jpg
 eda_outputs/
 full_image_sliding_window_outputs/
 interpretability_outputs/

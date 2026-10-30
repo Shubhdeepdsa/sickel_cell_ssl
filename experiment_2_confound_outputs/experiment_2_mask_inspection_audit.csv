@@ -1,0 +1,37 @@
+crop_id,pool,class_label,split,source_id,bg_coverage,mask_failed,bg_luma_mean,bg_sat_mean,audit_assessment
+pool_a_91_box1,Pool A,sickled,train,91,63.7%,False,211.8,0.032,Pristine plasma region
+pool_a_156_box1,Pool A,sickled,test,156,40.7%,False,232.0,0.037,Pristine plasma region
+pool_a_166_box2,Pool A,sickled,train,166,45.4%,False,233.2,0.028,Pristine plasma region
+pool_a_87_box6,Pool A,sickled,train,87,54.2%,False,223.2,0.065,Pristine plasma region
+pool_b_53_cand08,Pool B,non_sickled,train,53,63.6%,False,209.7,0.050,Pristine plasma region
+pool_a_280_box4,Pool A,sickled,train,280,45.1%,False,165.8,0.060,Pristine plasma region
+pool_b_26_cand11,Pool B,non_sickled,train,26,61.9%,False,216.8,0.030,Pristine plasma region
+pool_b_12_cand12,Pool B,non_sickled,train,12,28.5%,False,178.3,0.058,Pristine plasma region
+pool_b_38_cand04,Pool B,non_sickled,val,38,13.9%,False,233.2,0.060,Low background / dense RBC field
+pool_a_80_box1,Pool A,sickled,val,80,35.6%,False,222.3,0.130,Pristine plasma region
+pool_b_32_cand07,Pool B,non_sickled,train,32,40.7%,False,236.6,0.016,Pristine plasma region
+pool_b_14_cand01,Pool B,non_sickled,train,14,20.8%,False,252.8,0.014,Pristine plasma region
+pool_b_44_cand03,Pool B,non_sickled,train,44,7.4%,False,236.3,0.114,Low background / dense RBC field
+pool_b_7_cand01,Pool B,non_sickled,val,7,53.5%,False,230.8,0.024,Pristine plasma region
+pool_b_141_cand01,Pool B,non_sickled,train,141,10.4%,False,212.2,0.041,Low background / dense RBC field
+pool_b_43_cand09,Pool B,non_sickled,val,43,37.2%,False,231.4,0.042,Pristine plasma region
+pool_a_160_box3,Pool A,sickled,train,160,48.3%,False,226.7,0.063,Pristine plasma region
+pool_b_56_cand11,Pool B,non_sickled,test,56,52.2%,False,211.5,0.079,Pristine plasma region
+pool_a_260_box2,Pool A,sickled,train,260,14.0%,False,236.7,0.050,Low background / dense RBC field
+pool_b_20_cand12,Pool B,non_sickled,train,20,21.9%,False,230.9,0.033,Pristine plasma region
+pool_a_77_box1,Pool A,sickled,val,77,41.0%,False,205.1,0.040,Pristine plasma region
+pool_a_14_box1,Pool A,sickled,train,14,55.1%,False,150.8,0.117,Pristine plasma region
+pool_a_197_box3,Pool A,sickled,val,197,32.6%,False,235.2,0.081,Pristine plasma region
+pool_b_11_cand11,Pool B,non_sickled,train,11,46.3%,False,221.5,0.060,Pristine plasma region
+pool_a_244_box1,Pool A,sickled,val,244,71.1%,False,218.3,0.044,Pristine plasma region
+pool_b_91_cand09,Pool B,non_sickled,train,91,10.1%,False,222.4,0.087,Low background / dense RBC field
+pool_a_61_box3,Pool A,sickled,train,61,37.4%,False,210.6,0.078,Pristine plasma region
+pool_b_4_cand05,Pool B,non_sickled,train,4,23.9%,False,199.3,0.047,Pristine plasma region
+pool_b_112_cand09,Pool B,non_sickled,train,112,32.7%,False,214.4,0.042,Pristine plasma region
+pool_a_418_box1,Pool A,sickled,train,418,32.3%,False,219.1,0.053,Pristine plasma region
+pool_b_79_cand01,Pool B,non_sickled,train,79,4.1%,False,234.3,0.099,Low background / dense RBC field
+pool_b_60_cand05,Pool B,non_sickled,train,60,26.9%,False,232.8,0.039,Pristine plasma region
+pool_b_108_cand02,Pool B,non_sickled,test,108,21.3%,False,200.2,0.059,Pristine plasma region
+pool_a_168_box1,Pool A,sickled,train,168,36.8%,False,227.4,0.034,Pristine plasma region
+pool_b_118_cand09,Pool B,non_sickled,train,118,57.3%,False,226.4,0.033,Pristine plasma region
+pool_a_92_box2,Pool A,sickled,val,92,31.3%,False,215.5,0.041,Pristine plasma region
