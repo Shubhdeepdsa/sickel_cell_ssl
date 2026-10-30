@@ -78,12 +78,14 @@ Rather than relying on automated metadata flags, each of the top 20 outlier diag
 
 ### Adjudicated Taxonomy Summary Across Top 20 Outliers
 
-| Failure / Response Mechanism | Count | Proportion | Crops Affected | Observed Visual Characteristics |
+| Adjudicated Failure / Response Category | Count | Proportion | Crops Affected | Empirical Visual Observations |
 |---|---:|---:|---|---|
-| **Peripheral Cellular Clipping** | 10 | 50.0% | `pool_b_89_cand04`, `128_cand04`, `37_cand09`, `66_cand09`, `108_cand02`, `133_cand01`, `108_cand04`, `108_cand12`, `49_cand10`, `108_cand03` | Neighboring red blood cells or dense clusters graze or cross the 15% outer margin. Inpainting truncates adjacent cellular contours, altering effective silhouette aspect ratio. |
+| **Peripheral Cell Clipping** | 9 | 45.0% | `pool_b_89_cand04`, `128_cand04`, `37_cand09`, `66_cand09`, `108_cand02`, `133_cand01`, `108_cand04`, `108_cand12`, `49_cand10` | Neighboring red blood cells or dense clusters graze or cross the 15% outer margin. Inpainting truncates adjacent cellular contours, altering effective silhouette aspect ratio. |
 | **Aperture Border Removal** | 4 | 20.0% | `pool_b_96_cand07`, `147_cand01`, `96_cand10`, `92_cand11` | Genuine dark microscope aperture arc erased and replaced with plasma color canvas, causing prediction to shift toward sickled ($+0.28$ to $+0.96$). |
-| **Empty / Faint Plasma Background Crops** | 3 | 15.0% | `pool_b_116_cand11`, `pool_a_399_box1`, `pool_b_122_cand04` | Crop contains virtually no dark cell body (<1% dark pixels). Flat synthetic inpainting canvas induces artificial edge gradients on uniform plasma. |
-| **Threshold Boundary Cases Resolved to Non-Sickled** | 3 | 15.0% | `pool_b_37_cand06`, `pool_b_56_cand12`, `pool_b_37_cand03` | Originally borderline predictions ($P \approx 0.28 - 0.51$). Margin cleaning eliminated confusing peripheral noise/shadows, clarifying non-sickled morphology. |
+| **Threshold Boundary Cases Clarified** | 3 | 15.0% | `pool_b_37_cand06`, `pool_b_56_cand12`, `pool_b_37_cand03` | Originally borderline predictions ($P \approx 0.28 - 0.51$). Margin cleaning eliminated confusing peripheral noise/shadows, clarifying non-sickled morphology. |
+| **Empty / Faint Plasma Background Crops** | 2 | 10.0% | `pool_b_116_cand11`, `pool_b_122_cand04` | Crop contains virtually no dark cell body (<1% dark pixels). Flat synthetic inpainting canvas induces artificial edge gradients on uniform plasma. |
+| **Subthreshold Border and Crowding** | 1 | 5.0% | `pool_b_108_cand03` | Peripheral field contains subthreshold dark edge material and dense RBC crowding, both erased by canvas. |
+| **Faint Crop Boundary Erasure** | 1 | 5.0% | `pool_a_399_box1` | Faint sickled crop with subtle boundary gradient; margin inpainting blended the anchoring edge contour. |
 
 > [!IMPORTANT]
 > **Factual Outlier Distribution**: Exactly **16 of the top 20 outliers (80.0%)** occurred on crops with **no aperture border (`border = 0`)**. Only 4 of the top 20 outliers possessed an aperture border. This empirical finding confirms that large individual prediction shifts are predominantly driven by general peripheral image modifications (especially adjacent cell truncation and synthetic blend boundaries) rather than isolated aperture border reliance.

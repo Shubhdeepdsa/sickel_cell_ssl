@@ -110,3 +110,11 @@ git-filter-repo --invert-paths --path-match 'interpretability_outputs/' --path-m
 
 ### Step 3: Retain Only Synthetic Metric Plots
 Keep Category A plots (`fig02`, `fig03`, `fig05`–`fig13`) in the repository as reproducible numerical reporting assets.
+
+---
+
+## 5. Experiment 3 & 3.1 Status Update (October 2026)
+
+- **Audit Verification**: All newly created diagnostic artifacts from Experiment 3.1 (`experiment_3_reference_outputs/**/*.png`, including the 20 outlier comparison panels) were untracked from the Git index (`git rm --cached`) and `.gitignore` was updated accordingly.
+- **Repository Visibility**: The repository remains **private**.
+- **Action Required Prior to Public Release**: A formal decision must be made to either (a) verify open-access redistribution rights for the 137 historical microscopy-derived files under the source dataset license, or (b) execute the Step 1 & Step 2 cleanup protocol using `git-filter-repo` to ensure a completely clean public Git history.
