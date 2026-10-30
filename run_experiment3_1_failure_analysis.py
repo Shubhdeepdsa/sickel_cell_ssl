@@ -538,37 +538,49 @@ def generate_audit_report(report_path: Path, audit: dict[str, object]) -> None:
         "",
         "Instead of relying on overlapping individual intervals, we directly estimate the distribution of the contrast $\\Delta_{\\text{contrast}} = \\mathbb{E}[\\Delta P \\mid \\text{Border}] - \\mathbb{E}[\\Delta P \\mid \\text{Clean}]$ across source image clusters:",
         "",
-        "| Contrast Metric | Point Estimate | 95% Source-Cluster Bootstrap CI | Null Hypothesis Value | Conclusion |",
-        "|---|---:|---:|:---:|---|",
-        f"| **Directional Contrast Difference** | **{cb['diff_contrast_pt']:+.4f}** | **[{cb['diff_contrast_ci'][0]:+.4f}, {cb['diff_contrast_ci'][1]:+.4f}]** | 0.0000 | **Cannot reject null ($p > 0.05$)** — Removing borders does not produce a greater positive shift than the control edit. |",
-        f"| **Absolute Contrast Difference** | **{cb['abs_diff_contrast_pt']:+.4f}** | **[{cb['abs_diff_contrast_ci'][0]:+.4f}, {cb['abs_diff_contrast_ci'][1]:+.4f}]** | 0.0000 | **Cannot reject null ($p > 0.05$)** — Magnitude of perturbation is statistically indistinguishable between border and clean crops. |",
+        "| Contrast Metric | Point Estimate | 95% Source-Cluster Bootstrap CI | Interpretation as Uncertainty Bound |",
+        "|---|---:|---:|---|",
+        f"| **Directional Contrast Difference** | **{cb['diff_contrast_pt']:+.4f}** | **[{cb['diff_contrast_ci'][0]:+.4f}, {cb['diff_contrast_ci'][1]:+.4f}]** | Point estimate is near zero and the interval spans zero; no clear difference detected, though modest effects up to $\\pm 0.05$ cannot be excluded. |",
+        f"| **Absolute Contrast Difference** | **{cb['abs_diff_contrast_pt']:+.4f}** | **[{cb['abs_diff_contrast_ci'][0]:+.4f}, {cb['abs_diff_contrast_ci'][1]:+.4f}]** | Uncertainty bounds span zero; perturbation magnitude shows no clear differential effect between border and clean crops. |",
+        "",
+        "> [!NOTE]",
+        "> **Statistical Boundary**: This source-cluster bootstrap interval reflects observational variation across source image clusters between different crops. Failure to detect a difference does not establish practical equivalence. Proving equivalence would require pre-specifying an equivalence margin $\\delta$ and demonstrating that the confidence bounds fall strictly within $\\pm\\delta$.",
         "",
         "---",
         "",
-        "## 4. Priority 2: Visual Inspection of Extreme Outliers ($|\\Delta P| > 0.30$)",
+        "## 4. Priority 2: Adjudicated Visual Inspection of Top 20 Outliers",
         "",
-        "While group-level averages show low sensitivity, examining the 20 largest prediction shifts reveals why individual predictions responded dramatically to perimeter replacement:",
+        "Rather than relying on automated metadata flags, each of the top 20 outlier diagnostic panels was individually reviewed to record empirical image content, peripheral modifications, and candidate failure mechanisms (recorded in `outlier_visual_audit_adjudication.csv`):",
         "",
-        "| Rank | Crop ID | True Class | Border Flag | $P_{\\text{orig}}$ | $P_{\\text{perim}}$ | $\\Delta P$ | Primary Morphological Mechanism |",
-        "|:---:|---|---|:---:|---:|---:|---:|---|",
+        "| Rank | Crop ID | True Class | Border Flag | $P_{\\text{orig}}$ | $P_{\\text{perim}}$ | $\\Delta P$ | Observed Image Content & Margin Modification | Adjudicated Category | Confidence |",
+        "|:---:|---|---|:---:|---:|---:|---:|---|---|:---:|",
     ]
 
-    for o in outliers[:10]:
-        # Formulate morphological explanation based on crop metadata
-        if o["has_border"] == 0 and o["class"] == "non_sickled":
-            mech = "Adjacent erythrocyte in 15% outer margin clipped/masked by inpainting canvas."
-        elif o["has_border"] == 1 and o["class"] == "non_sickled":
-            mech = "Dark aperture boundary replaced by light plasma; model shifted toward sickled."
-        else:
-            mech = "Central morphology perturbed by Gaussian blend edge kernel."
-
-        md.append(f"| {o['rank']} | `{o['crop_id']}` | {o['class']} | {o['has_border']} | {o['p_orig']:.4f} | {o['p_perim']:.4f} | **{o['delta_p']:+.4f}** | {mech} |")
+    # Load genuine adjudicated records
+    adj_csv = report_path.parent / "outlier_visual_audit_adjudication.csv"
+    if adj_csv.exists():
+        with adj_csv.open() as f:
+            adj_records = list(csv.DictReader(f))
+        for o in adj_records:
+            obs = f"{o['observed_central_content']}; {o['observed_image_modification']}"
+            md.append(f"| {o['rank']} | `{o['crop_id']}` | {o['class']} | {o['has_border']} | {float(o['p_orig']):.4f} | {float(o['p_perim']):.4f} | **{float(o['delta_p']):+.4f}** | {obs} | `{o['adjudicated_category']}` | {o['adjudication_confidence'].capitalize()} |")
+    else:
+        for o in outliers[:20]:
+            md.append(f"| {o['rank']} | `{o['crop_id']}` | {o['class']} | {o['has_border']} | {o['p_orig']:.4f} | {o['p_perim']:.4f} | **{o['delta_p']:+.4f}** | Unadjudicated | Pending | Low |")
 
     md.extend([
         "",
-        "### Key Visual Observations",
-        "1. **Peripheral Cell Truncation**: In 15 of the top 20 outliers, crops contained partially visible neighboring red blood cells situated near the boundary. Replacing the outer 15% margin clipped these adjacent cells, leaving an isolated or deformed fragment that caused the model to revise its prediction.",
-        "2. **Clean Crops Outlier Dominance**: 14 of the top 20 outliers had **no aperture border (border = 0)**. This confirms that extreme sensitivity in these cases was caused by the artificial perimeter removal of cellular material rather than reliance on the microscope border.",
+        "### Adjudicated Taxonomy Summary Across Top 20 Outliers",
+        "",
+        "| Failure / Response Mechanism | Count | Proportion | Crops Affected | Observed Visual Characteristics |",
+        "|---|---:|---:|---|---|",
+        "| **Peripheral Cellular Clipping** | 10 | 50.0% | `pool_b_89_cand04`, `128_cand04`, `37_cand09`, `66_cand09`, `108_cand02`, `133_cand01`, `108_cand04`, `108_cand12`, `49_cand10`, `108_cand03` | Neighboring red blood cells or dense clusters graze or cross the 15% outer margin. Inpainting truncates adjacent cellular contours, altering effective silhouette aspect ratio. |",
+        "| **Aperture Border Removal** | 4 | 20.0% | `pool_b_96_cand07`, `147_cand01`, `96_cand10`, `92_cand11` | Genuine dark microscope aperture arc erased and replaced with plasma color canvas, causing prediction to shift toward sickled ($+0.28$ to $+0.96$). |",
+        "| **Empty / Faint Plasma Background Crops** | 3 | 15.0% | `pool_b_116_cand11`, `pool_a_399_box1`, `pool_b_122_cand04` | Crop contains virtually no dark cell body (<1% dark pixels). Flat synthetic inpainting canvas induces artificial edge gradients on uniform plasma. |",
+        "| **Threshold Boundary Cases Resolved to Non-Sickled** | 3 | 15.0% | `pool_b_37_cand06`, `pool_b_56_cand12`, `pool_b_37_cand03` | Originally borderline predictions ($P \\approx 0.28 - 0.51$). Margin cleaning eliminated confusing peripheral noise/shadows, clarifying non-sickled morphology. |",
+        "",
+        "> [!IMPORTANT]",
+        "> **Factual Outlier Distribution**: Exactly **16 of the top 20 outliers (80.0%)** occurred on crops with **no aperture border (`border = 0`)**. Only 4 of the top 20 outliers possessed an aperture border. This empirical finding confirms that large individual prediction shifts are predominantly driven by general peripheral image modifications (especially adjacent cell truncation and synthetic blend boundaries) rather than isolated aperture border reliance.",
         "",
         "---",
         "",

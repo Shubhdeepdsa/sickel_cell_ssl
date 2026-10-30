@@ -60,10 +60,13 @@ To test whether the border-removal effect exceeds the control edit, we directly 
 $$\Delta_{\text{contrast}} = \mathbb{E}[\Delta P \mid \text{Border}] - \mathbb{E}[\Delta P \mid \text{Clean}]$$
 $$\Delta_{|\text{contrast}|} = \mathbb{E}[|\Delta P| \mid \text{Border}] - \mathbb{E}[|\Delta P| \mid \text{Clean}]$$
 
-| Contrast Hypothesis | Point Estimate | 95% Source-Cluster Bootstrap CI | Null Value | Statistical Inference |
-|---|---:|---:|:---:|---|
-| **Directional Contrast Difference** | **-0.0026** | **[-0.0474, +0.0470]** | 0.0000 | **Cannot reject null ($p = 0.91$)** — Border removal does not produce a greater positive shift than the matched control edit. |
-| **Absolute Contrast Difference** | **-0.0173** | **[-0.0640, +0.0339]** | 0.0000 | **Cannot reject null ($p = 0.49$)** — Perturbation magnitude is indistinguishable between border and clean crops. |
+| Contrast Hypothesis | Point Estimate | 95% Source-Cluster Bootstrap CI | Interpretation as Uncertainty Bound |
+|---|---:|---:|---|
+| **Directional Contrast Difference** | **-0.0026** | **[-0.0474, +0.0470]** | Point estimate is near zero and interval spans zero; no clear differential effect detected, though modest differences up to $\pm 0.05$ cannot be excluded. |
+| **Absolute Contrast Difference** | **-0.0173** | **[-0.0640, +0.0339]** | Uncertainty bounds span zero; perturbation magnitude is indistinguishable between border and clean crops. |
+
+> [!NOTE]
+> **Statistical Equivalence vs. Null Detection**: This source-cluster bootstrap interval reflects observational variation across source image clusters. Failure to detect a difference does not establish practical equivalence. Proving equivalence would require pre-specifying an equivalence margin $\delta$ and demonstrating that the confidence bounds fall strictly within $\pm\delta$.
 
 ---
 

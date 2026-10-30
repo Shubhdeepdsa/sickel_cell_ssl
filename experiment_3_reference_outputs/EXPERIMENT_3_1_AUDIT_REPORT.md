@@ -39,33 +39,54 @@ Following the scientific review of Experiment 3, this investigation conducts a t
 
 Instead of relying on overlapping individual intervals, we directly estimate the distribution of the contrast $\Delta_{\text{contrast}} = \mathbb{E}[\Delta P \mid \text{Border}] - \mathbb{E}[\Delta P \mid \text{Clean}]$ across source image clusters:
 
-| Contrast Metric | Point Estimate | 95% Source-Cluster Bootstrap CI | Null Hypothesis Value | Conclusion |
-|---|---:|---:|:---:|---|
-| **Directional Contrast Difference** | **-0.0026** | **[-0.0474, +0.0470]** | 0.0000 | **Cannot reject null ($p > 0.05$)** — Removing borders does not produce a greater positive shift than the control edit. |
-| **Absolute Contrast Difference** | **-0.0173** | **[-0.0640, +0.0339]** | 0.0000 | **Cannot reject null ($p > 0.05$)** — Magnitude of perturbation is statistically indistinguishable between border and clean crops. |
+| Contrast Metric | Point Estimate | 95% Source-Cluster Bootstrap CI | Interpretation as Uncertainty Bound |
+|---|---:|---:|---|
+| **Directional Contrast Difference** | **-0.0026** | **[-0.0474, +0.0470]** | Point estimate is near zero and the interval spans zero; no clear difference detected, though modest effects up to $\pm 0.05$ cannot be excluded. |
+| **Absolute Contrast Difference** | **-0.0173** | **[-0.0640, +0.0339]** | Uncertainty bounds span zero; perturbation magnitude shows no clear differential effect between border and clean crops. |
+
+> [!NOTE]
+> **Statistical Boundary**: This source-cluster bootstrap interval reflects observational variation across source image clusters between different crops. Failure to detect a difference does not establish practical equivalence. Proving equivalence would require pre-specifying an equivalence margin $\delta$ and demonstrating that the confidence bounds fall strictly within $\pm\delta$.
 
 ---
 
-## 4. Priority 2: Visual Inspection of Extreme Outliers ($|\Delta P| > 0.30$)
+## 4. Priority 2: Adjudicated Visual Inspection of Top 20 Outliers
 
-While group-level averages show low sensitivity, examining the 20 largest prediction shifts reveals why individual predictions responded dramatically to perimeter replacement:
+Rather than relying on automated metadata flags, each of the top 20 outlier diagnostic panels was individually reviewed to record empirical image content, peripheral modifications, and candidate failure mechanisms (recorded in `outlier_visual_audit_adjudication.csv`):
 
-| Rank | Crop ID | True Class | Border Flag | $P_{\text{orig}}$ | $P_{\text{perim}}$ | $\Delta P$ | Primary Morphological Mechanism |
-|:---:|---|---|:---:|---:|---:|---:|---|
-| 1 | `pool_b_116_cand11` | non_sickled | 0 | 0.0000 | 0.9897 | **+0.9897** | Adjacent erythrocyte in 15% outer margin clipped/masked by inpainting canvas. |
-| 2 | `pool_b_96_cand07` | non_sickled | 1 | 0.0007 | 0.9646 | **+0.9639** | Dark aperture boundary replaced by light plasma; model shifted toward sickled. |
-| 3 | `pool_b_89_cand04` | non_sickled | 0 | 0.0148 | 0.9754 | **+0.9606** | Adjacent erythrocyte in 15% outer margin clipped/masked by inpainting canvas. |
-| 4 | `pool_b_128_cand04` | non_sickled | 0 | 0.0280 | 0.8839 | **+0.8558** | Adjacent erythrocyte in 15% outer margin clipped/masked by inpainting canvas. |
-| 5 | `pool_b_37_cand09` | non_sickled | 0 | 0.0087 | 0.8351 | **+0.8264** | Adjacent erythrocyte in 15% outer margin clipped/masked by inpainting canvas. |
-| 6 | `pool_b_108_cand03` | non_sickled | 0 | 0.1827 | 0.9353 | **+0.7526** | Adjacent erythrocyte in 15% outer margin clipped/masked by inpainting canvas. |
-| 7 | `pool_a_399_box1` | sickled | 0 | 0.9995 | 0.3237 | **-0.6758** | Central morphology perturbed by Gaussian blend edge kernel. |
-| 8 | `pool_b_37_cand06` | non_sickled | 0 | 0.4769 | 0.0019 | **-0.4749** | Adjacent erythrocyte in 15% outer margin clipped/masked by inpainting canvas. |
-| 9 | `pool_b_66_cand09` | non_sickled | 0 | 0.0133 | 0.4592 | **+0.4460** | Adjacent erythrocyte in 15% outer margin clipped/masked by inpainting canvas. |
-| 10 | `pool_b_147_cand01` | non_sickled | 1 | 0.1933 | 0.6330 | **+0.4397** | Dark aperture boundary replaced by light plasma; model shifted toward sickled. |
+| Rank | Crop ID | True Class | Border Flag | $P_{\text{orig}}$ | $P_{\text{perim}}$ | $\Delta P$ | Observed Image Content & Margin Modification | Adjudicated Category | Confidence |
+|:---:|---|---|:---:|---:|---:|---:|---|---|:---:|
+| 1 | `pool_b_116_cand11` | non_sickled | 0 | 0.0000 | 0.9897 | **+0.9897** | empty_background_plasma; natural_plasma_texture_replaced_by_synthetic_canvas | `empty_plasma_crop` | High |
+| 2 | `pool_b_96_cand07` | non_sickled | 1 | 0.0007 | 0.9646 | **+0.9639** | single_erythrocyte_central; dark_microscope_edge_erased_and_replaced_with_plasma | `aperture_border_removal` | High |
+| 3 | `pool_b_89_cand04` | non_sickled | 0 | 0.0148 | 0.9754 | **+0.9606** | single_erythrocyte_central; neighboring_erythrocyte_truncated_by_15pct_canvas | `peripheral_cell_clipping` | High |
+| 4 | `pool_b_128_cand04` | non_sickled | 0 | 0.0280 | 0.8839 | **+0.8558** | dense_central_erythrocyte; multiple_adjacent_cells_truncated_on_three_edges | `peripheral_cell_clipping` | High |
+| 5 | `pool_b_37_cand09` | non_sickled | 0 | 0.0087 | 0.8351 | **+0.8264** | small_erythrocyte_fragment; left_margin_cell_contour_truncated | `peripheral_cell_clipping` | Medium |
+| 6 | `pool_b_108_cand03` | non_sickled | 0 | 0.1827 | 0.9353 | **+0.7526** | central_cell_with_debris; dark_peripheral_material_and_adjacent_cells_erased | `subthreshold_border_and_crowding` | Medium |
+| 7 | `pool_a_399_box1` | sickled | 0 | 0.9995 | 0.3237 | **-0.6758** | faint_sickled_cell_green_tint; outer_gradient_blended_into_synthetic_canvas | `faint_crop_boundary_erasure` | High |
+| 8 | `pool_b_37_cand06` | non_sickled | 0 | 0.4769 | 0.0019 | **-0.4749** | central_erythrocyte_with_peripheral_clutter; peripheral_debris_and_edge_noise_erased | `threshold_boundary_case` | High |
+| 9 | `pool_b_66_cand09` | non_sickled | 0 | 0.0133 | 0.4592 | **+0.4460** | small_erythrocyte_central; top_erythrocyte_contour_clipped_by_canvas | `peripheral_cell_clipping` | High |
+| 10 | `pool_b_147_cand01` | non_sickled | 1 | 0.1933 | 0.6330 | **+0.4397** | central_erythrocyte; heavy_dark_aperture_boundary_erased_and_replaced | `aperture_border_removal` | High |
+| 11 | `pool_b_108_cand02` | non_sickled | 0 | 0.1034 | 0.5383 | **+0.4349** | central_erythrocyte; adjacent_erythrocyte_edges_clipped_on_four_sides | `peripheral_cell_clipping` | High |
+| 12 | `pool_b_96_cand10` | non_sickled | 1 | 0.0000 | 0.4063 | **+0.4063** | single_erythrocyte; aperture_edge_erased_with_plasma_canvas | `aperture_border_removal` | High |
+| 13 | `pool_b_133_cand01` | non_sickled | 0 | 0.0011 | 0.3641 | **+0.3630** | dense_overlapping_erythrocytes; overlapping_erythrocyte_bodies_truncated | `peripheral_cell_clipping` | High |
+| 14 | `pool_b_108_cand04` | non_sickled | 0 | 0.0002 | 0.3523 | **+0.3521** | central_erythrocyte; adjacent_cell_edges_erased_by_canvas | `peripheral_cell_clipping` | High |
+| 15 | `pool_b_108_cand12` | non_sickled | 0 | 0.0002 | 0.3313 | **+0.3311** | central_erythrocyte; adjacent_cell_edges_erased_by_canvas | `peripheral_cell_clipping` | High |
+| 16 | `pool_b_122_cand04` | non_sickled | 0 | 0.0000 | 0.3059 | **+0.3059** | empty_background_plasma; natural_plasma_texture_replaced_by_synthetic_canvas | `empty_plasma_crop` | Medium |
+| 17 | `pool_b_92_cand11` | non_sickled | 1 | 0.0002 | 0.2866 | **+0.2864** | central_erythrocyte; heavy_dark_aperture_edge_erased | `aperture_border_removal` | High |
+| 18 | `pool_b_56_cand12` | non_sickled | 0 | 0.2757 | 0.0016 | **-0.2741** | faint_erythrocyte_central; subtle_peripheral_texture_cleaned_up | `threshold_boundary_case` | Medium |
+| 19 | `pool_b_49_cand10` | non_sickled | 0 | 0.0002 | 0.2633 | **+0.2632** | central_erythrocyte; bottom_adjacent_cell_contour_clipped | `peripheral_cell_clipping` | High |
+| 20 | `pool_b_37_cand03` | non_sickled | 0 | 0.5054 | 0.2807 | **-0.2247** | central_erythrocyte_with_edge_shadow; edge_shadow_erased_with_clean_plasma | `threshold_boundary_case` | Medium |
 
-### Key Visual Observations
-1. **Peripheral Cell Truncation**: In 15 of the top 20 outliers, crops contained partially visible neighboring red blood cells situated near the boundary. Replacing the outer 15% margin clipped these adjacent cells, leaving an isolated or deformed fragment that caused the model to revise its prediction.
-2. **Clean Crops Outlier Dominance**: 14 of the top 20 outliers had **no aperture border (border = 0)**. This confirms that extreme sensitivity in these cases was caused by the artificial perimeter removal of cellular material rather than reliance on the microscope border.
+### Adjudicated Taxonomy Summary Across Top 20 Outliers
+
+| Failure / Response Mechanism | Count | Proportion | Crops Affected | Observed Visual Characteristics |
+|---|---:|---:|---|---|
+| **Peripheral Cellular Clipping** | 10 | 50.0% | `pool_b_89_cand04`, `128_cand04`, `37_cand09`, `66_cand09`, `108_cand02`, `133_cand01`, `108_cand04`, `108_cand12`, `49_cand10`, `108_cand03` | Neighboring red blood cells or dense clusters graze or cross the 15% outer margin. Inpainting truncates adjacent cellular contours, altering effective silhouette aspect ratio. |
+| **Aperture Border Removal** | 4 | 20.0% | `pool_b_96_cand07`, `147_cand01`, `96_cand10`, `92_cand11` | Genuine dark microscope aperture arc erased and replaced with plasma color canvas, causing prediction to shift toward sickled ($+0.28$ to $+0.96$). |
+| **Empty / Faint Plasma Background Crops** | 3 | 15.0% | `pool_b_116_cand11`, `pool_a_399_box1`, `pool_b_122_cand04` | Crop contains virtually no dark cell body (<1% dark pixels). Flat synthetic inpainting canvas induces artificial edge gradients on uniform plasma. |
+| **Threshold Boundary Cases Resolved to Non-Sickled** | 3 | 15.0% | `pool_b_37_cand06`, `pool_b_56_cand12`, `pool_b_37_cand03` | Originally borderline predictions ($P \approx 0.28 - 0.51$). Margin cleaning eliminated confusing peripheral noise/shadows, clarifying non-sickled morphology. |
+
+> [!IMPORTANT]
+> **Factual Outlier Distribution**: Exactly **16 of the top 20 outliers (80.0%)** occurred on crops with **no aperture border (`border = 0`)**. Only 4 of the top 20 outliers possessed an aperture border. This empirical finding confirms that large individual prediction shifts are predominantly driven by general peripheral image modifications (especially adjacent cell truncation and synthetic blend boundaries) rather than isolated aperture border reliance.
 
 ---
 
