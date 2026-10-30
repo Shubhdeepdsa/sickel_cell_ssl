@@ -117,8 +117,8 @@ def verify_split_integrity(records: list[CropRecord]) -> None:
     missing_files: list[str] = []
 
     for r in records:
-        split_by_source[r["source_key"]].add(r["split"])
-        label_by_source[r["source_key"]].add(r["label"])
+        split_by_source[r.source_key].add(r.split)
+        label_by_source[r.source_key].add(r.label)
         if not r.crop_path.exists():
             missing_files.append(str(r.crop_path))
 
