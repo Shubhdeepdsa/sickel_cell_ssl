@@ -40,7 +40,7 @@ All 72 sampled crops were compiled into an inspection contact sheet with visual 
 - **Goldenrod** (`empty region`): Background plasma with negligible cell content.
 - **Violet** (`suspicious artifacts`): Raster box line remnants or stain debris.
 
-*(Note: Raw patient microscopy imagery and generated contact sheet images are kept locally untracked in `.gitignore` to adhere strictly to biomedical data privacy and licensing policies.)*
+*(Note: Raw patient microscopy imagery and generated contact sheet images are kept locally untracked in `.gitignore` to adhere strictly to biomedical data privacy and licensing policies. A complete row-by-row manual verification record for all 72 crops is provided in `experiment_1_manual_review_audit.csv`.)*
 
 ## Scientific Interpretation
 
@@ -56,7 +56,7 @@ Border artifacts were observed in negative crops across all three dataset partit
 - **Validation**: 2/12 (16.7%)
 - **Test**: 8/12 (66.7%)
 
-However, with only 12 samples per group, this sample size is too small to establish whether artifact prevalence is genuinely consistent between partitions. These apparent differences could reflect either random sampling variance or true distribution shifts. This limitation motivated **Experiment 1.5**, where automated detection was scaled across all 2,825 crops in the complete dataset with source-clustered bootstrap uncertainty intervals.
+However, with only 12 samples per group, this sample size is too small to establish whether artifact prevalence is genuinely consistent between partitions. These apparent differences could reflect either random sampling variance or true distribution shifts. This limitation motivated **Experiment 1.5**, where automated detection was scaled across the complete reconciled dataset (2,717 crops) with source-cluster bootstrap uncertainty intervals.
 
 ## Concrete Action Items for Model Pipeline
 1. **Enforce Mask-Aware Preprocessing**: The frozen field-mask pipeline (`FROZEN_PREPROCESSING_PIPELINE.md` / `prototype_border_preprocessing_pipeline.py`) must be applied to suppress and zero-fill the outer dark circular border before extracting candidate negative crops.

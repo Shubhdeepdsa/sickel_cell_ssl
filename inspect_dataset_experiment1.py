@@ -70,10 +70,11 @@ def connected_components(mask: np.ndarray, min_area: int, max_area: int) -> list
             points_x.append(x)
             points_y.append(y)
 
-            for next_y, next_x in ((y - 1, x), (y + 1, x), (y, x - 1), (y, x + 1)):
-                if 0 <= next_y < height and 0 <= next_x < width and working[next_y, next_x]:
-                    working[next_y, next_x] = False
-                    stack.append((next_y, next_x))
+            for next_y in range(max(0, y - 1), min(height, y + 2)):
+                for next_x in range(max(0, x - 1), min(width, x + 2)):
+                    if working[next_y, next_x]:
+                        working[next_y, next_x] = False
+                        stack.append((next_y, next_x))
 
         area = len(points_x)
         if min_area <= area <= max_area:
@@ -93,7 +94,7 @@ def extract_negative_candidates(
 ) -> list[tuple[int, int, int, int]]:
     with Image.open(image_path) as raw_img:
         orig_w, orig_h = raw_img.size
-        thumb = raw_img.convert("RGB").resize((analysis_size, analysis_size))
+        thumb = raw_img.convert("RGB").resize((analysis_size, analysis_size), Image.Resampling.LANCZOS)
 
     pixels = np.array(thumb, dtype=float)
     luma = 0.2126 * pixels[:, :, 0] + 0.7152 * pixels[:, :, 1] + 0.0722 * pixels[:, :, 2]
