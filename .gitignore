@@ -22,7 +22,9 @@ uv.lock
 datasets_masked_resized_1024/
 
 # Generated experiment outputs
-crop_outputs/
+crop_outputs/**/*.jpg
+crop_outputs/**/*.jpeg
+crop_outputs/**/*.png
 experiment_1_inspection_outputs/crops/
 experiment_1_inspection_outputs/*.png
 experiment_1_inspection_outputs/*.jpg
