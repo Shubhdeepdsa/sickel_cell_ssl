@@ -1,795 +1,398 @@
-# Comprehensive Scientific Report
+# Shortcut Availability Versus Model Sensitivity: An Exploratory Audit of Smartphone Sickle-Cell Microscopy Classification
 
-## Title
+[![Python](https://img.shields.io/badge/Python-3.12%2B-blue.svg)](https://www.python.org/)
+[![PyTorch](https://img.shields.io/badge/PyTorch-2.14%2B-ee4c2c.svg)](https://pytorch.org/)
+[![Hardware](https://img.shields.io/badge/Hardware-Apple%20Silicon%20MPS%20%7C%20CUDA-brightgreen.svg)]()
+[![License](https://img.shields.io/badge/License-Research%20Private-lightgrey.svg)]()
+[![Status](https://img.shields.io/badge/Status-Completed%20Technical%20Audit-success.svg)]()
 
-**A Source-Level, Crop-Based Classification Pipeline for Sickle Cell Morphology in Uganda Smartphone Microscopy: Annotation Recovery, Label Construction, Self-Supervised Learning, Label-Efficiency, and Robustness Analysis**
+> **Lead Researcher**: Shubhdeep Das  
+> **Technical Assistant**: Antigravity AI Coding Assistant  
+> **Repository**: [`https://github.com/Shubhdeepdsa/sickel_cell_ssl`](https://github.com/Shubhdeepdsa/sickel_cell_ssl)  
+> **Primary Manuscript**: [**`RESEARCH_MANUSCRIPT.md`**](file:///Users/shubhdeepdas/Documents/Code/Research_Nagercoil_Projects/sickel_cell_ssl/RESEARCH_MANUSCRIPT.md)  
+> **Active Branch**: `main` (synchronized with `experiment-3-reference-model`)  
 
-## Abstract
+---
 
-This report documents the full computational workflow implemented in this repository for binary classification of individual red-blood-cell crops as `sickled` or `non_sickled` using a Uganda smartphone microscopy dataset. The study was designed to answer a focused methodological question: whether in-domain self-supervised learning improves downstream classification performance, particularly when labeled data are scarce. The repository implements data auditing, annotation reconstruction from raster overlays, source-level train/validation/test partitioning, crop generation, a classical baseline, deep supervised baselines, in-domain SimCLR pretraining, low-label experiments, and robustness testing under smartphone-style perturbations. The principal findings are: (1) the crop-level task is learnable, (2) source-level splitting successfully avoids a major leakage failure mode, (3) in-domain SimCLR consistently improves over supervised training from scratch, (4) the SimCLR advantage grows as labeled data shrink, and (5) ImageNet initialization remains the strongest overall baseline in the canonical RGB experiments. The main scientific limitations are the heuristic construction of non-sickled crops, the recovery of positive boxes from raster overlays rather than original coordinate annotations, and the absence of explicit stain metadata in the current manifests.
+## Table of Contents
+1. [Executive Summary & Core Scientific Contribution](#1-executive-summary--core-scientific-contribution)
+2. [End-to-End Pipeline Architecture](#2-end-to-end-pipeline-architecture)
+3. [Cohort Assembly & Exploratory Data Analysis (EDA)](#3-cohort-assembly--exploratory-data-analysis-eda)
+4. [Discovery of the Aperture-Border Confound (Experiments 1 & 1.5)](#4-discovery-of-the-aperture-border-confound-experiments-1--15)
+5. [Shortcut Availability Analysis (Experiment 2)](#5-shortcut-availability-analysis-experiment-2)
+6. [Historical Baseline & Representation Learning Benchmark (Stages 4–7)](#6-historical-baseline--representation-learning-benchmark-stages-47)
+7. [Reference Model Training & Baseline Quality Gate (Experiment 3 Stage 2)](#7-reference-model-training--baseline-quality-gate-experiment-3-stage-2)
+8. [Controlled Artifact Interventions & Uncertainty Bounds (Experiment 3 Stage 3)](#8-controlled-artifact-interventions--uncertainty-bounds-experiment-3-stage-3)
+9. [Forensic Failure Analysis & Adjudicated Visual Taxonomy (Experiment 3.1)](#9-forensic-failure-analysis--adjudicated-visual-taxonomy-experiment-31)
+10. [Integrated Scientific Discussion & Methodological Boundaries](#10-integrated-scientific-discussion--methodological-boundaries)
+11. [Step-by-Step Reproduction Guide](#11-step-by-step-reproduction-guide)
+12. [Data Protection, Governance & Public Release Roadmap](#12-data-protection-governance--public-release-roadmap)
 
-## Research Objective and Repository Scope
+---
 
-The repository implements a crop-level binary cell classification pipeline for the following question:
+## 1. Executive Summary & Core Scientific Contribution
 
-**Does in-domain self-supervised pretraining improve binary sickled-vs-non-sickled cell crop classification on a small smartphone-microscopy dataset, especially in the low-label regime?**
+Automated classification of sickle-cell erythrocyte morphology from smartphone-mounted optical microscopy holds promise for expanding diagnostic screening in low-resource clinics. However, computer vision models applied to medical imagery are notoriously prone to *shortcut learning*—exploiting non-biological imaging artifacts (such as illumination vignetting or slide staining cues) that happen to correlate with diagnostic labels in a specific dataset.
 
-The repository is scoped to:
+Earlier iterations of this project achieved remarkable test accuracies exceeding 98–99% using convolutional backbones and self-supervised SimCLR representations. To evaluate whether these scores reflected true cellular morphology or unintended imaging shortcuts, we conducted an end-to-end experimental audit.
 
-- cell-crop classification,
-- Uganda smartphone microscopy imagery,
-- two classes: `sickled` and `non_sickled`,
-- representation learning, label-efficiency, and robustness evaluation.
-
-The repository is not scoped to:
-
-- whole-image diagnosis,
-- cell counting,
-- segmentation,
-- clinical deployment,
-- external multi-site generalization claims.
-
-## End-to-End Computational Architecture
-
-The implemented workflow is summarized below from raw data ingestion to final evaluation.
+### The Central Three-Part Scientific Finding
 
 ```mermaid
 flowchart TD
-    A["Uganda microscopy dataset"] --> B["Positive/Labelled<br/>overlay JPGs"]
-    A --> C["Positive/Unlabelled<br/>raw JPGs"]
-    A --> D["Negative/Clear<br/>raw JPGs"]
+    subgraph Part1 ["1. Shortcut Availability in Dataset"]
+        A["Experiments 1 & 1.5:<br/>Systematic Dataset Audit"] --> B["Aperture Border Confound Identified:<br/>35.4% negative vs 10.0% positive crops<br/>(Delta = +25.4%, 95% CI: [20.1%, 30.7%])"]
+        B --> C["Experiment 2:<br/>Feature-Restricted Classifiers"]
+        C --> D["Perimeter Cues Alone Achieve:<br/>67.9% Balanced Accuracy<br/>(73.6% Recall, 62.2% Specificity)"]
+    end
 
-    B --> E["Annotation reconstruction<br/>from raster overlays"]
-    C --> E
-    E --> F["Recovered positive boxes"]
+    subgraph Part2 ["2. Reference Model Performance"]
+        E["Experiment 3 Stage 2:<br/>ImageNet ResNet-18 Reference Model"] --> F["Frozen Exploratory Baseline:<br/>99.5% Test Balanced Accuracy (402/404)<br/>100.0% Across 81 Source Images"]
+    end
 
-    C --> G["Source-image manifest creation"]
-    D --> G
-    F --> G
+    subgraph Part3 ["3. Causal Reliance & Interventions"]
+        F --> G["Experiment 3 Stage 3:<br/>Controlled Image Interventions"]
+        G --> H["Border Removal vs Matched Control:<br/>Delta_contrast = -0.0026<br/>(95% Source-Cluster CI: [-0.0474, +0.0470])"]
+        H --> I["Plasma Color Equalization:<br/>Mean Shift = +0.0011 (Indistinguishable from Zero)"]
+        G --> J["Experiment 3.1:<br/>Outlier Failure Analysis"]
+        J --> K["14.4% crops had |Delta P| > 0.10<br/>80.0% of outliers were border-free<br/>(Neighboring cells clipped by inpainting)"]
+    end
 
-    G --> H["Source-level train/val/test split<br/>70/15/15, seed 42"]
-    H --> I["Pool A<br/>labeled sickled crops"]
-    H --> J["Pool B<br/>heuristic labeled non-sickled crops"]
-    H --> K["Pool C<br/>unlabeled candidate crops"]
-
-    I --> L["Classical baseline<br/>logistic regression"]
-    J --> L
-
-    I --> M["Deep supervised training<br/>scratch and ImageNet"]
-    J --> M
-
-    I --> N["SimCLR pretraining pool"]
-    J --> N
-    K --> N
-    N --> O["SimCLR fine-tuning"]
-
-    M --> P["Full-label comparison"]
-    O --> P
-    P --> Q["Low-label source-level subsampling"]
-    Q --> R["10%, 20%, 50%, 100% label-fraction experiments"]
-    R --> S["Robustness evaluation under blur, brightness,<br/>compression, and stain/color perturbation"]
+    Part1 -.->|"Shortcut Available"| Part2
+    Part2 -->|"Tested Against"| Part3
 ```
 
-The repository also contains an exploratory grayscale branch, but the primary canonical pipeline in the workspace is the RGB branch summarized above.
-
-## Cohort Assembly and Data Characterization
-
-### Data Source and Acquisition
-
-The experiments use the **Uganda Smartphone Microscopy Sickle Cell Dataset**:
-- **Source:** [Kaggle - florencetushabe/sickle-cell-disease-dataset](https://www.kaggle.com/datasets/florencetushabe/sickle-cell-disease-dataset)
-- **Principal Authors / Curators:** Prof. Florence Tushabe, Samuel Mwesige, Vicent Kasule, David Areu, Philip Mutabazi, Emily Nsimire, Sarah Cheptoek Musani, and Emmanuel Othieno (Soroti University, Uganda).
-- **Clinical Origin:** Blood smear samples collected from Kumi Hospital, Soroti Regional Referral Hospital, and Soroti University in eastern Uganda. Samples were prepared with Field and Leishman stains and captured using smartphone cameras attached to standard compound light microscopes.
-- **Repository Directory:** Placed under `./datasets/` (configured in `config.yaml`).
-
-#### Automated Setup / Download
-To download and verify the dataset into `./datasets/`:
-```bash
-# Requires kagglehub (pip install kagglehub)
-python download_dataset.py
-```
-Or manually via the Kaggle CLI:
-```bash
-kaggle datasets download -d florencetushabe/sickle-cell-disease-dataset --unzip -p datasets/
-```
+The investigation separates three questions often conflated in clinical AI research:
+1. **Does the dataset contain an unintended shortcut?**  
+   **Yes.** Non-sickled crops disproportionately sample peripheral slide coordinates, containing dark microscope aperture borders in **35.4%** of crops compared to only **10.0%** of sickled crops.
+2. **Can a classifier exploit that shortcut?**  
+   **Yes.** Restricted-feature classifiers trained strictly on the outer 15% crop margin achieve **67.9% balanced accuracy**, well above the 50% random reference level, without examining central cellular morphology.
+3. **Did the high-performing reference model depend on that shortcut?**  
+   **The interventions did not establish substantial differential dependence on the tested aperture border on average.** Removing borders from border-bearing crops produced a mean probability shift ($+0.045$) virtually identical to matched control edits on clean crops ($+0.047$), with a net contrast of $\Delta_{\text{contrast}} = -0.0026$ (95% CI: $[-0.0474, +0.0470]$). However, individual predictions exhibited meaningful vulnerability to general peripheral image modifications (14.4% of negatives with $|\Delta P| > 0.10$, predominantly due to peripheral cell clipping).
 
 > [!IMPORTANT]
-> **Data Privacy and Version Control:**
-> All raw images under `datasets/` and derived images (`datasets_masked_resized_1024/`) are explicitly excluded in `.gitignore` to ensure patient microscopy image files are never accidentally committed or tracked in Git.
+> **Core Conceptual Contribution**:  
+> A predictive shortcut can exist in a dataset without being essential to every deep neural network trained on that dataset. Demonstrating that a shortcut is *available* does not prove that a high-performing model *relies* on it. Conversely, limited sensitivity to a specific border intervention does not prove exclusive reliance on biological morphology, as other unmeasured acquisition characteristics and contextual features remain untested.
 
-### Expected Directory Layout and File Counts
+---
 
-- `datasets/Positive/Labelled/` (422 images): Smartphone micrographs with black rectangular box overlays indicating sickled cells.
-- `datasets/Positive/Unlabelled/` (422 images): Matching raw smartphone micrographs without bounding box overlays.
-- `datasets/Negative/Clear/` (147 images): Raw smartphone micrographs from negative/normal blood smears.
-- **Total Scanned Files:** 991 images (569 unique source images for modeling).
+## 2. End-to-End Pipeline Architecture
 
-### Image audit summary
-
-All numerical values below are taken from the saved audit artifact `eda_outputs/stage1_data_audit.md`.
-
-| Quantity | Value |
-|---|---:|
-| Positive raw images for modeling | 422 |
-| Positive labelled overlay images | 422 |
-| Negative clear images | 147 |
-| Positive labelled/unlabelled filename pairs | 422 |
-| Total image files scanned | 991 |
-| Source images used downstream | 569 |
-
-### Image size profile
-
-| Statistic | Width | Height |
-|---|---:|---:|
-| Median | 1000 | 1009 |
-| Minimum | 469 | 436 |
-| Maximum | 4160 | 3440 |
-
-### Quality and color-cast proxy summary
-
-| Image quality category | Count |
-|---|---:|
-| usable | 565 |
-| low_contrast | 4 |
-
-| Color-cast proxy category | Count |
-|---|---:|
-| balanced_mixed_cast | 238 |
-| blue_purple_cast | 120 |
-| green_cyan_cast | 11 |
-| pink_red_cast | 200 |
-
-### Stain metadata status
-
-No explicit stain labels were encoded in the raw folder or filename structure used by the current pipeline. As a result:
-
-- split manifests retain stain as effectively `unknown`,
-- stain-aware stratification was not meaningfully available,
-- robustness conclusions are based on synthetic perturbations rather than known stain metadata.
-
-## Annotation Reconstruction and Label Derivation
-
-### Annotation storage reality
-
-No separate XML, JSON, TXT, or coordinate annotation files were found. Instead, the positive annotations were embedded as black rectangle overlays in the labelled JPGs. Matching raw images were available in the corresponding unlabelled directory.
-
-### Annotation reconstruction method
-
-Positive crop annotations were reconstructed from the overlay/raw image pairs using an image-processing heuristic implemented in `eda.py`. The main logic was:
-
-1. Resize the labelled and raw images to a common analysis grid.
-2. Detect dark rectangular regions by paired differencing and single-image dark-region fallback logic.
-3. Remove edge-connected regions and non-rectangular connected components.
-4. Score recovered components for box-like geometry and interior occupancy.
-5. Categorize components into `likely_crop_candidate`, `loose_or_empty`, or `overfilled`.
-
-### Annotation reconstruction workflow
+The complete codebase implements an end-to-end research pipeline, from raw smartphone microscopy ingestion to rigorous causal intervention testing:
 
 ```mermaid
-flowchart TD
-    A["Labelled positive image<br/>with black rectangle overlays"] --> C["Resize to analysis resolution"]
-    B["Matching raw positive image"] --> C
-    C --> D["Paired difference mask<br/>raw brighter than overlay"]
-    C --> E["Fallback dark-rectangle detection"]
-    D --> F["Connected components"]
-    E --> F
-    F --> G["Remove edge-touching regions"]
-    G --> H["Filter by size, aspect ratio,<br/>fill ratio, rectangularity"]
-    H --> I["Estimate interior foreground occupancy"]
-    I --> J["Recovered box categories"]
-    J --> K["likely_crop_candidate"]
-    J --> L["loose_or_empty"]
-    J --> M["overfilled"]
+flowchart LR
+    subgraph DataPrep ["Data Preparation & EDA"]
+        D1["Raw Uganda Smartphone Images<br/>(Field & Leishman Stains)"] --> D2["Annotation Reconstruction<br/>from Raster Overlays"]
+        D2 --> D3["Source-Image Manifest Creation<br/>(Zero Source Leakage)"]
+        D3 --> D4["Reconstructed Reference Pool<br/>2,717 Crops (128x128 RGB)"]
+    end
+
+    subgraph HistoricalExp ["Historical Exploration"]
+        D4 --> H1["Stage 4: Logistic Baseline"]
+        D4 --> H2["Stage 5: Supervised vs SimCLR"]
+        D4 --> H3["Stage 6: Low-Label Efficiency"]
+        D4 --> H4["Stage 7: Smartphone Perturbations"]
+    end
+
+    subgraph AuditPhase ["Confound Audit & Intervention Phase"]
+        D4 --> A1["Experiments 1 & 1.5:<br/>Aperture Border Audit"]
+        A1 --> A2["Experiment 2:<br/>Shortcut Availability Analysis"]
+        A2 --> A3["Experiment 3:<br/>ResNet-18 Reference Model (99.5%)"]
+        A3 --> A4["Experiment 3 Stage 3:<br/>Interventions (T_border, T_plasma)"]
+        A4 --> A5["Experiment 3.1:<br/>Forensic Visual Adjudication"]
+    end
+
+    DataPrep --> HistoricalExp
+    HistoricalExp --> AuditPhase
 ```
 
-### Annotation reconstruction results
+---
 
-| Quantity | Value |
-|---|---:|
-| Labelled images with at least one detected box | 421 / 422 |
-| Total detected boxes | 1408 |
-| Likely crop-candidate boxes | 993 |
-| Crop-candidate proportion | 70.5% |
+## 3. Cohort Assembly & Exploratory Data Analysis (EDA)
 
-| Recovered box quality bucket | Count |
-|---|---:|
-| likely_crop_candidate | 993 |
-| loose_or_empty | 159 |
-| overfilled | 256 |
+### 3.1 Clinical Dataset Origin
+The experiments utilize the **Uganda Smartphone Microscopy Sickle Cell Dataset**:
+- **Curators**: Prof. Florence Tushabe, Samuel Mwesige, Vicent Kasule, David Areu, Philip Mutabazi, Emily Nsimire, Sarah Cheptoek Musani, and Emmanuel Othieno (Soroti University, Uganda).
+- **Source**: [Kaggle - florencetushabe/sickle-cell-disease-dataset](https://www.kaggle.com/datasets/florencetushabe/sickle-cell-disease-dataset).
+- **Clinical Cohort**: Peripheral blood smears collected from Kumi Hospital, Soroti Regional Referral Hospital, and Soroti University in eastern Uganda. Samples were prepared with Field and Leishman stains and captured using consumer smartphones mounted onto standard compound light microscopes.
 
-### Scientific implication
+### 3.2 Automated Annotation Recovery
+Because the primary dataset provided positive sickled labels as red raster bounding-box overlays embedded into full-resolution images, we developed a paired difference-image recovery script (`eda.py`). By matching each labeled image (`datasets/Positive/Labelled/`) to its unlabelled counterpart (`datasets/Positive/Unlabelled/`), the script recovered exact bounding coordinates without manual re-annotation.
 
-The positive labels used downstream are usable for experimentation, but they are not equivalent to original gold-standard coordinate annotations. Any scientific interpretation must retain that limitation.
+### 3.3 Heuristic Non-Sickled Candidate Generation (Pool B)
+Unlabelled negative control fields (`datasets/Negative/Clear/`) contain thousands of normal biconcave erythrocytes. Connected components were filtered by luminance and saturation to extract candidate non-sickled crops:
 
-## Source-Level Partitioning and Leakage Control
+<div align="center">
+  <img src="fig01_pool_b_contact_sheet.jpg" alt="Pool B Contact Sheet" width="750" />
+  <p><em>Figure 1. Contact sheet of candidate non-sickled erythrocyte crops (Pool B) extracted via connected-component filtering.</em></p>
+</div>
 
-To avoid train/test contamination through shared source-image style, illumination, or capture artifacts, the repository splits the data at the source-image level before crop generation. This policy is implemented in `split_protocol.py`.
+---
 
-### Partition design
+## 4. Discovery of the Aperture-Border Confound (Experiments 1 & 1.5)
 
-- train / validation / test target: `70% / 15% / 15%`
-- deterministic seed: `42`
-- globally unique source keys were used to avoid positive/negative filename collisions
+During data auditing, visual inspection revealed that crops extracted from negative slides frequently contained dark circular arcs along their perimeters. In Experiments 1 and 1.5, we applied an automated edge-luminance annular gradient detector across all 2,717 reconstructed crops.
 
-### Final source split
+### The Macroscopic Asymmetry
+- **Pool A (Sickled Crops)**: **10.0%** (125 of 1,249 crops flagged).
+- **Pool B (Non-Sickled Crops)**: **35.4%** (519 of 1,468 crops flagged).
+- **Statistical Significance**: A systematic difference of **25.4 percentage points** (95% source-cluster bootstrap CI: $[20.1\%, 30.7\%]$).
 
-| Split | Sources | Positive | Negative |
-|---|---:|---:|---:|
-| train | 399 | 296 | 103 |
-| val | 85 | 63 | 22 |
-| test | 85 | 63 | 22 |
-| total | 569 | 422 | 147 |
+Negative candidate generation disproportionately extracted crops from peripheral slide areas adjacent to the microscope eyepiece field stop. Consequently, an algorithm could theoretically distinguish negative from positive crops merely by detecting this dark boundary.
 
-### Importance of this choice
+---
 
-This is one of the strongest design decisions in the repository. It prevents the common failure mode where train and test sets share crops from the same original microscopy frame.
+## 5. Shortcut Availability Analysis (Experiment 2)
 
-## Crop Dataset Construction
+Experiment 2 tested whether shallow classifiers could exploit these peripheral non-morphological cues to predict class labels without examining central cellular morphology:
 
-Crop generation is implemented in `crop_creation.py`. The repository constructs three distinct pools with different purposes.
+| Evaluation Tier | Feature Description | Model & Regularization | Test Balanced Accuracy | 95% Source-Cluster CI | Sickled Recall (TPR) | Non-Sickled Spec (TNR) |
+|---|---|---|:---:|:---:|:---:|:---:|
+| **Tier 1: Border Flag** | Single binary border indicator | Decision stump ($th = 0.50$) | **61.9%** | [56.1%, 67.8%] | 89.6% | 34.2% |
+| **Tier 2: Perimeter Features** | 12 edge statistics (RGB, luma, gradients) | Regularized Logistic ($C=1.0, th^*=0.51$) | **67.9%** | [60.7%, 75.1%] | **73.6%** (134/182) | **62.2%** (138/222) |
+| **Tier 3: Background Plasma** | Masked extracellular plasma statistics | Regularized Logistic ($C=10.0, th^*=0.55$) | **64.1%** | [57.8%, 70.3%] | 36.8% | 91.4% |
 
-### Crop pool definitions
+> [!NOTE]
+> **Perimeter Feature Content**:
+> As documented in Experiment 2, the outer 15% margin captures both microscope aperture vignetting and peripheral erythrocyte packing geometry (neighboring cells grazing the margin). Thus, Tier 2 demonstrates that peripheral image information is highly predictive, but that information is not exclusively non-morphological.
 
-- **Pool A**: labeled sickled crops from recovered positive-image boxes
-- **Pool B**: heuristic labeled non-sickled crops from negative images using connected components
-- **Pool C**: unlabeled candidate crops for SimCLR pretraining
+---
 
-### Crop counts
+## 6. Historical Baseline & Representation Learning Benchmark (Stages 4–7)
 
-| Pool | Definition | Total | Train | Val | Test |
-|---|---|---:|---:|---:|---:|
-| Pool A | labeled sickled | 1249 | 917 | 150 | 182 |
-| Pool B | labeled non-sickled | 1462 | 1000 | 236 | 226 |
-| Pool C | unlabeled candidate crops | 3971 | 2790 | 568 | 613 |
+Before the artifact audit was conducted, the project completed a multi-stage investigation comparing classical models, supervised ResNet-18 training from scratch, ImageNet transfer learning, and in-domain self-supervised SimCLR pretraining.
 
-### Crop construction facts
+### 6.1 Classical Baseline (Stage 4)
+A logistic regression model trained on flattened crop pixels served as the minimal sanity baseline:
 
-| Quantity | Value |
-|---|---:|
-| Output crop size | 128 x 128 |
-| Sources with multiple splits after crop generation | 0 |
+<div align="center">
+  <img src="fig02_stage4_confusion_matrix.png" alt="Stage 4 Confusion Matrix" width="380" />
+  <img src="fig03_stage4_roc_curve.png" alt="Stage 4 ROC Curve" width="380" />
+  <p><em>Figure 2. Stage 4 classical baseline test performance: confusion matrix (left) and ROC curve (right, AUC = 0.957).</em></p>
+</div>
 
-### Quality caveat for Pool B
+### 6.2 Full-Label Representation Learning Comparison (Stage 5)
+Comparing deep architectures under full training labels (1,931 crops):
 
-Pool B is not an expert-reviewed non-sickled cell set. It is a heuristic negative-crop pool derived from connected components in negative source images. Some crops include border or context artifacts, which is an important limitation.
+<div align="center">
+  <img src="fig05_stage5_baseline_metrics.png" alt="Stage 5 Baseline Metrics" width="700" />
+  <p><em>Figure 3. Stage 5 full-label comparison across Supervised Scratch, In-Domain SimCLR, and ImageNet Pretrained ResNet-18.</em></p>
+</div>
 
-### Representative crop-generation visual
+| Model Family | Initialization | Test Balanced Accuracy | Test Raw Accuracy | Test ROC AUC |
+|---|---|:---:|:---:|:---:|
+| **Classical Logistic** | Scikit-Learn L2 | 87.8% | 88.1% | 0.957 |
+| **ResNet-18 (Scratch)** | Random initialization | 93.1% | 93.3% | 0.981 |
+| **ResNet-18 (SimCLR)** | In-domain contrastive pretraining | 98.5% | 98.5% | 0.998 |
+| **ResNet-18 (ImageNet)** | Torchvision ImageNet-1K | **98.6%** | **98.8%** | **0.999** |
 
-*Figure 1. Pool B spot-check contact sheet illustrating heuristic non-sickled crop generation and its artifact risk.*
+### 6.3 Low-Label Efficiency Sweeps (Stage 6)
+To evaluate label efficiency, models were trained on 10%, 20%, 50%, and 100% of labeled source images:
 
-![Pool B contact sheet](fig01_pool_b_contact_sheet.jpg)
+<div align="center">
+  <img src="fig06_stage6_low_label_balanced_accuracy.png" alt="Stage 6 Balanced Accuracy" width="380" />
+  <img src="fig07_stage6_gain_over_scratch.png" alt="Stage 6 Gain over Scratch" width="380" />
+  <p><em>Figure 4. Stage 6 label-efficiency sweeps: test balanced accuracy (left) and SimCLR gain over training from scratch (right).</em></p>
+</div>
 
-## Classical Discriminative Baseline
+<div align="center">
+  <img src="fig08_stage6_heatmap.png" alt="Stage 6 Heatmap" width="750" />
+  <p><em>Figure 5. Performance heatmap across label fractions and representation pretraining schemes.</em></p>
+</div>
 
-Before deep learning, the repository established a fast statistical baseline using logistic regression over handcrafted image features. This model is implemented in `train_binary_classifier.py`.
+**Key Finding**: In-domain SimCLR consistently outperformed training from scratch, with the performance gap expanding as labeled data decreased (+5.4% at 100% labels $\to$ **+19.5% at 10% labels**). However, ImageNet fine-tuning remained the strongest overall baseline across all label regimes.
 
-### Feature design
+### 6.4 Smartphone Perturbation Robustness (Stage 7)
+Models were stress-tested against realistic smartphone microscopy degradations (Gaussian blur, luminance shifts, JPEG compression, and chromatic stain variations):
 
-The feature representation combined:
+<div align="center">
+  <img src="fig09_stage7_drop_from_clean.png" alt="Stage 7 Drop from Clean" width="380" />
+  <img src="fig10_stage7_perturbation_plot.png" alt="Stage 7 Perturbation Plot" width="380" />
+  <p><em>Figure 6. Stage 7 robustness evaluation: performance drop from clean (left) and perturbation degradation curves (right).</em></p>
+</div>
 
-- resized RGB thumbnail features,
-- RGB histogram features,
-- simple texture features,
-- brightness statistics.
+<div align="center">
+  <img src="fig13_overall_robustness_snapshot.png" alt="Overall Robustness Snapshot" width="750" />
+  <p><em>Figure 7. Comprehensive robustness radar across all tested smartphone imaging corruptions.</em></p>
+</div>
 
-### Training data counts
+### 6.5 Initial Explainability (XAI) Sensitivity
+Early attribution analysis using Grad-CAM and occlusion sensitivity revealed that the RGB SimCLR model exhibited extreme sensitivity to color perturbations:
 
-| Split | Sickled | Non-sickled | Total |
-|---|---:|---:|---:|
-| train | 917 | 1000 | 1917 |
-| val | 150 | 236 | 386 |
-| test | 182 | 226 | 408 |
+<div align="center">
+  <img src="fig14_xai_rgb_failure_gradcam.png" alt="Grad-CAM" width="250" />
+  <img src="fig15_xai_rgb_failure_occlusion.png" alt="Occlusion Map" width="250" />
+  <img src="fig17_xai_rgb_failure_shortcut_sensitivity.png" alt="Shortcut Sensitivity" width="250" />
+  <p><em>Figure 8. Attribution failure case: Grad-CAM hotspot extending into background (left), occlusion sensitivity (center), and complete prediction reversal under mild stain alteration (right).</em></p>
+</div>
 
-### Leakage checks
+---
 
-| Quantity | Value |
-|---|---:|
-| n_sources | 543 |
-| sources_with_multiple_splits | 0 |
-| sources_with_multiple_labels | 0 |
+## 7. Reference Model Training & Baseline Quality Gate (Experiment 3 Stage 2)
 
-### Validation model selection
+To evaluate whether a deep network relies on the aperture-border shortcut discovered in Experiments 1 and 2, we trained an ImageNet-pretrained ResNet-18 reference model under a **frozen exploratory protocol**:
 
-| Regularization C | Balanced Accuracy | Accuracy | Macro F1 | ROC AUC |
+```
+Model Identity:   Experiment 3 — ImageNet ResNet-18 Reference Model
+Architecture:     ResNet-18 (Torchvision ResNet18_Weights.DEFAULT)
+Hardware Backend: Apple Silicon M4 MPS (PyTorch 2.14.1)
+Checkpoint Hash:  83cd725076f60899bea0dfe4b7bbaa729ff82a60293b4e799d3082a6ae0419bb
+Checkpoint File:  experiment_3_reference_outputs/best_model.pt (Epoch 13)
+```
+
+### Baseline Performance on Unchanged Test Partition
+Selected strictly by peak validation balanced accuracy (**99.8%**, Epoch 13), the frozen model was evaluated once on the unchanged test partition ($N = 404$ crops):
+
+| Evaluation Level | Sample Size | Balanced Accuracy | Raw Accuracy | Sickled Recall (TPR) | Non-Sickled Spec (TNR) | ROC AUC |
+|---|---:|---:|---:|---:|---:|---:|
+| **Crop Level (Standard $th=0.50$)** | 404 crops | **99.5%** | 99.5% | 99.5% (181/182) | 99.5% (221/222) | 0.9997 |
+| **Source-Image Level (Cluster Mean)** | 81 source files | **100.0%** | 100.0% | 100.0% (59/59) | 100.0% (22/22) | 1.0000 |
+
+With test balanced accuracy exceeding the pre-registered quality gate ($\ge 75.0\%$), the model was deemed eligible for controlled causal interventions.
+
+---
+
+## 8. Controlled Artifact Interventions & Uncertainty Bounds (Experiment 3 Stage 3)
+
+### 8.1 Subgroup Stratification on Natural Crops
+We stratified natural, unmodified test crops by class and border presence:
+
+| Subgroup Stratum | Number of Crops | Reference Model Accuracy | Mean $P(\text{Sickled})$ | Std Dev |
 |---|---:|---:|---:|---:|
-| 0.01 | 0.8083 | 0.8057 | 0.8000 | 0.8673 |
-| 0.1 | 0.7780 | 0.7746 | 0.7688 | 0.8421 |
-| 1.0 | 0.7495 | 0.7487 | 0.7418 | 0.8050 |
-| 10.0 | 0.7335 | 0.7306 | 0.7243 | 0.7734 |
+| **Stratum 1: Sickled (Clean / No Border)** | 168 | **99.4%** | 0.994 | 0.075 |
+| **Stratum 2: Sickled (Border Present)** | 14 | **100.0%** | 0.996 | 0.012 |
+| **Stratum 3: Non-Sickled (Clean / No Border)** | 152 | **99.3%** | 0.013 | 0.063 |
+| **Stratum 4: Non-Sickled (Border Present)** | 70 | **100.0%** | 0.003 | 0.023 |
 
-### Test performance
+**Key Finding**: On the 152 natural non-sickled crops with **zero detected aperture border**, the model achieved **99.3% accuracy** (151/152 correct) with a mean predicted sickled probability of only **0.013**. The dark border is not required for the classifier to recognize non-sickled cells.
 
-| Metric | Value |
-|---|---:|
-| Accuracy | 0.8505 |
-| Balanced accuracy | 0.8485 |
-| Macro F1 | 0.8486 |
-| ROC AUC | 0.8988 |
+### 8.2 Controlled Perimeter Inpainting ($T_{\text{border}}$ vs $T_{\text{control}}$)
+We replaced the outer 15% margin (19 pixels) with local background color using a Gaussian-smoothed edge blend, comparing border-bearing non-sickled crops ($T_{\text{border}}$) against an identical edit on clean non-sickled crops ($T_{\text{control}}$):
 
-### Test confusion matrix
+$$\Delta_{\text{contrast}} = \mathbb{E}[\Delta P \mid \text{Border}] - \mathbb{E}[\Delta P \mid \text{Clean}] = \mathbf{-0.0026}$$
+$$95\% \text{ Source-Cluster Bootstrap CI} = \mathbf{[-0.0474, +0.0470]}$$
 
-| Actual class | Predicted non_sickled | Predicted sickled |
-|---|---:|---:|
-| non_sickled | 196 | 30 |
-| sickled | 31 | 151 |
+$$\Delta_{|\text{contrast}|} = \mathbb{E}[|\Delta P| \mid \text{Border}] - \mathbb{E}[|\Delta P| \mid \text{Clean}] = \mathbf{-0.0173}$$
+$$95\% \text{ Source-Cluster Bootstrap CI} = \mathbf{[-0.0640, +0.0339]}$$
 
-### Majority-class comparison
+> [!NOTE]
+> **Interpretation as an Uncertainty Bound**:
+> The estimated contrast is near zero and the 95% bootstrap interval spans zero, demonstrating that the study did not detect a clear differential response between the two groups. However, because the interval admits modest differences of up to $\sim \pm 0.05$, this represents an **absence of detected difference rather than proven mathematical equivalence**.
 
-| Split | Majority-baseline accuracy | Majority-baseline balanced accuracy |
-|---|---:|---:|
-| val | 0.6114 | 0.5000 |
-| test | 0.5539 | 0.5000 |
+### 8.3 Background Plasma Equalization
+Multiplicatively rescaling RGB channels across all test crops to match the empirical training-set median background (`(216.13, 217.12, 209.12)`) shifted predictions by a negligible $+0.0011$ (mean $|\Delta P| = 0.0048$, 95% CI: $[-0.001, +0.004]$).
 
-### Interpretation
+---
 
-The classical model established that the crop-level task is meaningfully learnable and clearly above a one-class baseline. However, it could not determine whether the learned signal was genuinely morphological or partly driven by extraction artifacts and capture shortcuts.
+## 9. Forensic Failure Analysis & Adjudicated Visual Taxonomy (Experiment 3.1)
 
-### Representative baseline visuals
+While the signed average shift was modest (+0.045), examining absolute probability shifts ($|\Delta P|$) revealed substantial individual sensitivity:
+- **Median $|\Delta P|$**: 0.0000 (over 75% of crops had $|\Delta P| \le 0.0005$).
+- **Crops with $|\Delta P| > 0.10$**: **14.4%** (32 / 222 non-sickled crops).
+  - Border-Bearing Negatives: **14.3%** (10 / 70)
+  - Border-Free Negatives: **14.5%** (22 / 152)
 
-*Figure 2. Test confusion matrix for the classical baseline.*
+Large prediction shifts occurred at virtually identical rates regardless of whether the original crop contained an aperture border.
 
-![Stage 4 confusion matrix](fig02_stage4_confusion_matrix.png)
+### Adjudicated Visual Review of Top 20 Outliers
+Each of the 20 largest prediction shifts was individually reviewed and logged in [`outlier_visual_audit_adjudication.csv`](file:///Users/shubhdeepdas/Documents/Code/Research_Nagercoil_Projects/sickel_cell_ssl/experiment_3_reference_outputs/outlier_visual_audit_adjudication.csv):
 
-*Figure 3. ROC curve for the classical baseline.*
+| Adjudicated Category in CSV | Outlier Count | Proportion | Crops Affected | Empirical Visual Observations |
+|---|---:|---:|---|---|
+| **Peripheral Cell Clipping** | 9 | **45.0%** | `pool_b_89_cand04`, `128_cand04`, `37_cand09`, `66_cand09`, `108_cand02`, `133_cand01`, `108_cand04`, `108_cand12`, `49_cand10` | Neighboring erythrocytes graze the 15% outer margin. Inpainting severs adjacent cell bodies, creating asymmetric contours that mimic abnormal cell morphology. |
+| **Aperture Border Removal** | 4 | **20.0%** | `pool_b_96_cand07`, `147_cand01`, `96_cand10`, `92_cand11` | Genuine dark aperture boundary erased and replaced with plasma canvas, shifting $P(\text{Sickled})$ upward ($+0.28$ to $+0.96$). |
+| **Threshold Boundary Cases Clarified** | 3 | **15.0%** | `pool_b_37_cand06`, `pool_b_56_cand12`, `pool_b_37_cand03` | Borderline predictions ($P \approx 0.28 - 0.51$) resolved to confident non-sickled ($P \approx 0.002 - 0.28$) when peripheral noise and edge shadows were erased. |
+| **Empty / Faint Plasma Background Crops** | 2 | **10.0%** | `pool_b_116_cand11`, `pool_b_122_cand04` | Crops contain virtually no dark cell body (<1% dark pixels); uniform inpainting canvas introduces artificial edge gradients on flat plasma. |
+| **Subthreshold Border and Crowding** | 1 | **5.0%** | `pool_b_108_cand03` | Peripheral field contains subthreshold dark edge material and dense RBC crowding, both erased by canvas. |
+| **Faint Crop Boundary Erasure** | 1 | **5.0%** | `pool_a_399_box1` | Faint sickled crop with subtle boundary gradient; margin inpainting blended the anchoring edge contour. |
 
-![Stage 4 ROC curve](fig03_stage4_roc_curve.png)
+> [!IMPORTANT]
+> **Adjudicated Outlier Distribution**: Exactly **16 of the top 20 outliers (80.0%) were border-free crops (`border = 0`)**. This confirms that large prediction changes were predominantly driven by general peripheral image modifications (especially adjacent cell truncation and synthetic blend boundaries) rather than isolated aperture border reliance.
 
-*Figure 4. Error contact sheet for qualitative inspection of baseline failures.*
+---
 
-![Stage 4 error sheet](fig04_stage4_error_sheet.jpg)
+## 10. Integrated Scientific Discussion & Methodological Boundaries
 
-## Deep Convolutional Baselines and In-Domain Self-Supervised Pretraining
+### 10.1 Decoupling Shortcut Availability from Model Reliance
+The primary scientific contribution of this study is the empirical separation of **shortcut availability** from **demonstrated model reliance**:
+1. Experiments 1 and 2 proved that an aperture-border shortcut was strongly associated with class labels and sufficient for shallow models to predict labels well above chance (67.9% balanced accuracy).
+2. Experiments 3 and 3.1 demonstrated that a high-performing ResNet-18 reference model showed no clear additional average sensitivity to border removal relative to control edits ($\Delta_{\text{contrast}} = -0.0026$), while maintaining 99.3% accuracy on border-free crops.
 
-The core representation-learning comparison was implemented in `train_stage5.py`. Three branches were evaluated:
+A predictive shortcut can exist in a dataset without being essential to every deep model trained on that dataset.
 
-1. `supervised_scratch`
-2. `imagenet_finetune`
-3. `simclr_finetune`
+### 10.2 Methodological Boundaries & Limitations
+- **No Proof of Exclusive Morphology Learning**: Showing limited sensitivity to aperture borders and color shifts does not prove that the model relies exclusively on biological sickle-cell morphology. Other untested acquisition covariates, such as optical aberrations, slide preparation artifacts, or subtle contextual patterns, could remain influential.
+- **Single Architecture Scope**: We evaluated one newly trained reference model (ImageNet-initialized ResNet-18). These experiments do not establish whether self-supervised models (e.g., SimCLR) or models trained strictly from scratch exhibit the same level of intervention sensitivity.
+- **Source-Image Independence vs Clinical Generalization**: Partitioning by source-image prevents intra-image crop leakage, but does not guarantee generalization to independent clinics, staining protocols, or patient demographics.
 
-### Supervised training configuration
+---
 
-| Parameter | Value |
-|---|---:|
-| Backbone | ResNet-18 |
-| Image size | 224 |
-| Batch size | 32 |
-| Epochs | 20 |
-| Optimizer | AdamW |
-| Learning rate | 1e-4 |
-| Weight decay | 1e-4 |
-| Scheduler | Cosine annealing |
-| Loss | class-weighted cross-entropy |
+## 11. Step-by-Step Reproduction Guide
 
-### Supervised augmentation policy
+### Environment Setup
+The codebase uses [`uv`](https://github.com/astral-sh/uv) and supports Python 3.12+ on macOS (Apple Silicon MPS) and Linux (CUDA):
 
-- resize to `224 x 224`
-- random horizontal flip
-- random vertical flip
-- random rotation up to `180`
-- modest color jitter
+```bash
+# 1. Clone the repository
+git clone https://github.com/Shubhdeepdsa/sickel_cell_ssl.git
+cd sickel_cell_ssl
 
-### SimCLR pretraining configuration
+# 2. Create virtual environment using Python 3.12
+uv venv --python 3.12 .venv
+source .venv/bin/activate
 
-| Parameter | Value |
-|---|---:|
-| Backbone | ResNet-18 encoder |
-| Projection head | linear -> ReLU -> linear |
-| Projection dimension | 128 |
-| Epochs | 50 |
-| Batch size | 64 |
-| Learning rate | 3e-4 |
-| Weight decay | 1e-4 |
-| Temperature | 0.2 |
-| Scheduler | Cosine annealing |
+# 3. Install dependencies
+uv pip install torch torchvision numpy pillow
+```
 
-### SimCLR augmentation policy
+### Reproducing the Experiments
 
-- random resized crop with scale `(0.55, 1.0)`
-- random horizontal and vertical flips
-- random rotation up to `180`
-- stronger color jitter
-- random grayscale with probability `0.10`
-- Gaussian blur
+```bash
+# Phase 1: Reconstruct the physical reference dataset (2,717 crops, 128x128 RGB)
+python reconstruct_reference_dataset.py
 
-### Effective unlabeled exposure for SimCLR
+# Phase 2: Run Confound Availability Analysis (Experiment 2)
+python experiment_2_confound_investigation.py
 
-| Source contributing to SSL pool | Number of crops |
-|---|---:|
-| Pool C unlabeled train crops | 2790 |
-| Pool A + Pool B train crops with labels removed | 1917 |
-| Total train-split SSL pool | 4707 |
+# Phase 3: Run Stage 2 Pre-flight smoke test (zero test leakage)
+python train_experiment3_reference_model.py --smoke-test
 
-The SimCLR loss reportedly decreased from approximately `4.08` at epoch 1 to approximately `1.20` by epoch 50, indicating that the contrastive objective optimized as intended.
+# Phase 4: Train Reference ResNet-18 Model (20 epochs on Apple Silicon MPS / CUDA)
+python train_experiment3_reference_model.py --epochs 20 --batch-size 32 --lr 1e-4 --seed 42
 
-### Full-label RGB comparison
-
-The canonical RGB comparison, taken from `stage5_outputs/stage5_report.md`, is shown below.
-
-| Model family | Best validation balanced accuracy | Test crop balanced accuracy | Test crop ROC AUC | Test source balanced accuracy |
-|---|---:|---:|---:|---:|
-| supervised_scratch | 0.9343 | 0.9311 | 0.9854 | 0.9518 |
-| imagenet_finetune | 0.9945 | 0.9863 | 0.9997 | 1.0000 |
-| simclr_finetune | 0.9785 | 0.9851 | 0.9987 | 1.0000 |
-
-### Interpretation
-
-This comparison answers the primary representation-learning question clearly:
-
-- deep learning substantially improves upon the classical baseline,
-- in-domain SimCLR provides a large improvement over supervised training from scratch,
-- ImageNet fine-tuning remains the strongest overall full-label baseline in the canonical RGB branch.
-
-### Representative full-label model visual
-
-*Figure 5. Aggregate comparison of the deep full-label baselines.*
-
-![Stage 5 baseline metrics](fig05_stage5_baseline_metrics.png)
-
-## Label-Efficiency Under Source-Level Subsampling
-
-The low-label protocol was implemented in `train_stage6_low_label.py`. This experiment asked whether the value of self-supervised initialization increases when labeled supervision is scarce.
-
-### Experimental design
-
-- only the train split was subsampled,
-- subsampling was done at the source-image level,
-- validation and test sets remained fixed,
-- subsets were nested and class-stratified,
-- label fractions were `100%`, `50%`, `20%`, and `10%`.
-
-### Training subset sizes
-
-| Label fraction | Train sources | Train crops |
-|---|---:|---:|
-| 100% | 382 | 1917 |
-| 50% | 190 | 900 |
-| 20% | 76 | 367 |
-| 10% | 38 | 196 |
-
-### Low-label RGB results
-
-| Label fraction | Scratch balanced accuracy | SimCLR balanced accuracy | ImageNet balanced accuracy | SimCLR minus scratch |
-|---|---:|---:|---:|---:|
-| 100% | 0.9311 | 0.9873 | 0.9863 | 0.0562 |
-| 50% | 0.8388 | 0.9658 | 0.9895 | 0.1270 |
-| 20% | 0.7745 | 0.9310 | 0.9724 | 0.1565 |
-| 10% | 0.6844 | 0.8791 | 0.9305 | 0.1948 |
-
-### Low-label RGB ROC AUC and source-level summary
-
-| Label fraction | Setup | Test crop ROC AUC | Test source balanced accuracy |
-|---|---|---:|---:|
-| 100% | scratch | 0.9854 | 0.9518 |
-| 100% | imagenet | 0.9997 | 1.0000 |
-| 100% | simclr | 0.9989 | 1.0000 |
-| 50% | scratch | 0.9239 | 0.8297 |
-| 50% | imagenet | 0.9988 | 1.0000 |
-| 50% | simclr | 0.9966 | 0.9688 |
-| 20% | scratch | 0.8185 | 0.7704 |
-| 20% | imagenet | 0.9966 | 0.9688 |
-| 20% | simclr | 0.9864 | 0.9688 |
-| 10% | scratch | 0.7740 | 0.7419 |
-| 10% | imagenet | 0.9839 | 0.9831 |
-| 10% | simclr | 0.9475 | 0.8810 |
-
-### Interpretation
-
-This is one of the strongest results in the repository. The gain of SimCLR over scratch increases monotonically as labels are reduced:
-
-- `+0.0562` at full labels,
-- `+0.1270` at 50% labels,
-- `+0.1565` at 20% labels,
-- `+0.1948` at 10% labels.
-
-That pattern strongly supports the intended scientific hypothesis that in-domain self-supervised learning is especially useful in the low-label regime.
-
-### Representative low-label visuals
-
-*Figure 6. Test crop balanced accuracy across label fractions.*
-
-![Stage 6 low-label balanced accuracy](fig06_stage6_low_label_balanced_accuracy.png)
-
-*Figure 7. Gain over scratch across label fractions.*
-
-![Stage 6 gain over scratch](fig07_stage6_gain_over_scratch.png)
-
-*Figure 8. Heatmap summary of the low-label comparison.*
-
-![Stage 6 heatmap](fig08_stage6_heatmap.png)
-
-## Robustness Under Smartphone-Style Perturbations
-
-The robustness study was implemented in `evaluate_stage7_robustness.py` and `evaluate_stage7_low_label_robustness.py`. These analyses test whether clean performance remains stable under mild deterministic perturbations intended to approximate common smartphone microscopy acquisition issues.
-
-### Perturbation protocol
-
-| Perturbation | Setting |
-|---|---|
-| blurred | Gaussian blur radius `1.25` |
-| lower_brightness | brightness factor `0.75` |
-| mild_compression | JPEG quality `45` |
-| mild_stain_color | RGB scales `(1.08, 0.97, 1.06)` with color factor `1.08` and contrast factor `1.03` |
-
-### Full-label RGB robustness
-
-The table below evaluates the saved full-label RGB checkpoints.
-
-| Model family | Clean | Blur | Brightness | Compression | Stain/Color | Largest drop from clean |
-|---|---:|---:|---:|---:|---:|---|
-| supervised_scratch | 0.9311 | 0.9261 | 0.8824 | 0.9090 | 0.5066 | stain/color |
-| imagenet_finetune | 0.9863 | 0.9835 | 0.9808 | 0.9478 | 0.9635 | compression |
-| simclr_finetune | 0.9851 | 0.9846 | 0.9785 | 0.9851 | 0.7212 | stain/color |
-
-### Drop-from-clean summary
-
-| Model family | Blur drop | Brightness drop | Compression drop | Stain/color drop |
-|---|---:|---:|---:|---:|
-| supervised_scratch | 0.0050 | 0.0487 | 0.0221 | 0.4245 |
-| imagenet_finetune | 0.0027 | 0.0055 | 0.0385 | 0.0227 |
-| simclr_finetune | 0.0005 | 0.0066 | 0.0000 | 0.2639 |
-
-### Interpretation
-
-The robustness analysis shows that:
-
-- scratch is highly vulnerable to stain/color perturbation,
-- SimCLR is much stronger than scratch overall, but still displays non-trivial RGB stain/color sensitivity,
-- ImageNet is the most robust overall baseline in the current RGB experiments.
-
-### Representative robustness visuals
-
-*Figure 9. Full-label robustness drop from clean performance.*
-
-![Stage 7 drop from clean](fig09_stage7_drop_from_clean.png)
-
-*Figure 10. Perturbation-wise balanced accuracy across model families.*
-
-![Stage 7 perturbation plot](fig10_stage7_perturbation_plot.png)
-
-## Low-Label Robustness
-
-The low-label robustness report is now complete in the saved RGB outputs and evaluates all four label fractions.
-
-### Clean low-label performance under the robustness protocol
-
-| Label fraction | Scratch clean | SimCLR clean | ImageNet clean | SimCLR minus scratch |
-|---|---:|---:|---:|---:|
-| 100% | 0.9311 | 0.9873 | 0.9863 | 0.0562 |
-| 50% | 0.8388 | 0.9658 | 0.9895 | 0.1270 |
-| 20% | 0.7745 | 0.9310 | 0.9724 | 0.1565 |
-| 10% | 0.6844 | 0.8791 | 0.9305 | 0.1948 |
-
-### Stain/color robustness under reduced supervision
-
-| Label fraction | Scratch stain/color | SimCLR stain/color | ImageNet stain/color | SimCLR drop from clean |
-|---|---:|---:|---:|---:|
-| 100% | 0.5066 | 0.9226 | 0.9635 | 0.0648 |
-| 50% | 0.5000 | 0.7212 | 0.9099 | 0.2446 |
-| 20% | 0.5631 | 0.7423 | 0.9530 | 0.1887 |
-| 10% | 0.5018 | 0.7711 | 0.9133 | 0.1080 |
-
-### Interpretation
-
-Under label scarcity:
-
-- the SimCLR advantage over scratch persists under perturbation,
-- scratch collapses badly under stain/color shifts,
-- SimCLR remains clearly better than scratch, though still imperfect under stain/color perturbation,
-- ImageNet remains the strongest and most stable baseline overall.
-
-### Representative low-label robustness visuals
-
-*Figure 11. Clean low-label robustness summary.*
-
-![Stage 7 low-label clean](fig11_stage7_low_label_clean.png)
-
-*Figure 12. SimCLR gain over scratch in the low-label clean regime.*
-
-![Stage 7 low-label gain over scratch](fig12_stage7_low_label_gain_over_scratch.png)
-
-*Figure 13. Overall robustness snapshot combining the main saved RGB findings.*
-
-![Overall robustness snapshot](fig13_overall_robustness_snapshot.png)
-
-## Exploratory Grayscale Extension
-
-The current workspace contains an exploratory grayscale branch under:
-
-- `stage5_grayscale_outputs/`
-- `stage6_grayscale_outputs/`
-
-These runs convert inputs to grayscale while preserving the 3-channel model interface. This branch is useful for testing whether the models rely primarily on color/stain cues or whether morphology remains predictive after color removal.
-
-### Completed full-label grayscale comparison
-
-The full-label grayscale comparison is available in `stage5_grayscale_outputs/stage5_report.md`.
-
-| Model family | Test crop balanced accuracy | Test crop ROC AUC | Test source balanced accuracy |
-|---|---:|---:|---:|
-| supervised_scratch | 0.9403 | 0.9889 | 0.9688 |
-| imagenet_finetune | 0.9950 | 0.9999 | 1.0000 |
-| simclr_finetune | 0.9928 | 0.9995 | 1.0000 |
-
-### Saved low-label grayscale results
-
-The current workspace contains saved low-label grayscale runs for all four fractions:
-
-| Label fraction | Scratch balanced accuracy | SimCLR balanced accuracy | ImageNet balanced accuracy | SimCLR minus scratch |
-|---|---:|---:|---:|---:|
-| 100% | 0.9403 | 0.9928 | 0.9950 | 0.0525 |
-| 50% | 0.8405 | 0.9834 | 0.9868 | 0.1429 |
-| 20% | 0.7570 | 0.9718 | 0.9531 | 0.2149 |
-| 10% | 0.6419 | 0.9188 | 0.9631 | 0.2769 |
-
-### Interpretation
-
-The grayscale branch suggests that:
-
-- performance does not collapse when color is removed,
-- strong morphology signal remains available,
-- the low-label SimCLR advantage is not obviously dependent on RGB color alone,
-- stain/color fragility is greatly reduced once the pipeline is rerun in grayscale.
-
-## XAI And Shortcut Diagnostics
-
-The repository contains an explicit interpretability pipeline under:
-
-- `interpretability_outputs/stage5_rgb/`
-- `interpretability_outputs/stage5_grayscale/`
-
-For each selected sample and each setup, the XAI pipeline generates:
-
-1. `Grad-CAM`
-2. `Occlusion`
-3. `Nearest neighbors`
-4. `Perturbation grids`
-5. `Shortcut-sensitivity plots`
-
-These are useful for answering a narrower question than the aggregate metrics:
-
-**When SimCLR succeeds or fails on an individual crop, does it appear to rely on cell morphology, or is it reacting to nuisance cues such as stain/color, field edges, brightness, or context?**
-
-### How to read the XAI visuals
-
-- `Grad-CAM` highlights the spatial regions that most support the predicted class.
-- `Occlusion` shows where masking a local region most reduces predicted-class confidence.
-- `Nearest neighbors` show which training crops are closest in the learned feature space.
-- `Shortcut-sensitivity` plots show predicted `P[sickled]` under `clean`, `forced_grayscale`, `blurred`, `lower_brightness`, `mild_compression`, and `mild_stain_color`.
-
-The interpretive rule used in this repo is:
-
-- if saliency and occlusion focus mainly on cells and stay stable under nuisance perturbations, that supports morphology use,
-- if saliency spreads into borders/background and confidence flips strongly under color-related perturbations, that suggests shortcut use.
-
-### Representative XAI failure case: `A__positive_20__0009`
-
-This sample is actually `sickled`, but the RGB SimCLR model predicts `non_sickled` with `P[sickled]=0.0245`.
-
-*Figure 14. RGB SimCLR Grad-CAM on the failure case `A__positive_20__0009`.*
-
-![RGB SimCLR failure Grad-CAM](fig14_xai_rgb_failure_gradcam.png)
-
-*Figure 15. RGB SimCLR occlusion map on the same failure case.*
-
-![RGB SimCLR failure occlusion](fig15_xai_rgb_failure_occlusion.png)
-
-*Figure 16. RGB SimCLR nearest-neighbor retrievals for the same failure case.*
-
-![RGB SimCLR failure neighbors](fig16_xai_rgb_failure_neighbors.png)
-
-*Figure 17. RGB shortcut-sensitivity plot for `A__positive_20__0009`.*
-
-![RGB SimCLR failure shortcut sensitivity](fig17_xai_rgb_failure_shortcut_sensitivity.png)
-
-Observed pattern:
-
-- the Grad-CAM hotspot is broad and extends into the lower-left field-edge region rather than isolating only the elongated cells,
-- the occlusion map also emphasizes a broad center-lower region instead of one clearly diagnostic sickled cell,
-- the retrieved neighbors are non-sickled examples with similar pale background and field-edge appearance,
-- the shortcut-sensitivity curve is extremely unstable:
-  - clean: about `0.024`
-  - forced grayscale: about `0.028`
-  - blur/compression: still near zero
-  - mild stain/color: jumps to nearly `0.98`
-
-Interpretation:
-
-- this is strong sample-level evidence that RGB SimCLR is using nuisance appearance cues,
-- the near-complete class reversal under `mild_stain_color` is not what a morphology-only rule would be expected to do,
-- this case supports the claim that SimCLR may be partially "cheating" in the RGB branch.
-
-### Representative XAI ambiguity case: `B__negative_37__0012`
-
-This sample is actually `non_sickled`. In RGB, the SimCLR branch predicts `non_sickled` with only moderate separation and shows large perturbation sensitivity.
-
-*Figure 18. RGB shortcut-sensitivity plot for `B__negative_37__0012`.*
-
-![RGB ambiguous shortcut sensitivity](fig18_xai_rgb_ambiguous_shortcut_sensitivity.png)
-
-*Figure 19. Grayscale shortcut-sensitivity plot for the same sample.*
-
-![Grayscale ambiguous shortcut sensitivity](fig19_xai_grayscale_ambiguous_shortcut_sensitivity.png)
-
-Observed pattern:
-
-- in RGB, the prediction changes sharply under grayscale conversion, brightness change, and stain/color perturbation,
-- in grayscale, the same sample remains much flatter and more stable across perturbations,
-- this matches the repo-wide robustness finding that the RGB branch carries stain/color dependence while the grayscale branch removes most of it.
-
-### XAI conclusion
-
-The XAI outputs do **not** support the strongest claim that SimCLR is only cheating. They support a narrower and more defensible claim:
-
-**The RGB SimCLR branch appears to use a mixture of real morphology signal and nuisance visual cues. On several informative failure or ambiguity cases, the visuals support partial shortcut reliance, especially on stain/color-sensitive samples.**
-
-## Integrated Scientific Findings
-
-### What is convincingly demonstrated
-
-1. The Uganda smartphone microscopy data can support a meaningful crop-level binary morphology task.
-2. Source-level splitting was enforced correctly and avoids a major leakage failure mode.
-3. The crop-generation pipeline produces enough signal to support both classical and deep-learning baselines.
-4. In-domain SimCLR materially improves over supervised training from scratch.
-5. The benefit of SimCLR grows as the amount of labeled data decreases.
-6. ImageNet fine-tuning remains the strongest overall baseline in the canonical RGB branch.
-7. Stain/color sensitivity remains the dominant weakness in RGB robustness, especially for scratch and, to a lesser extent, SimCLR.
-8. The XAI outputs support partial shortcut reliance in the RGB SimCLR branch, but not a pure-shortcut explanation.
-
-### Best-performing canonical RGB configurations
-
-| Evaluation context | Best model family | Test crop balanced accuracy |
-|---|---|---:|
-| full-label comparison | imagenet_finetune | 0.9863 |
-| low-label 50% | imagenet_finetune | 0.9895 |
-| low-label 20% | imagenet_finetune | 0.9724 |
-| low-label 10% | imagenet_finetune | 0.9305 |
-
-### Best evidence that SimCLR is scientifically useful
-
-| Condition | Evidence |
-|---|---|
-| Full-label RGB | SimCLR `0.9851` vs scratch `0.9311` |
-| 50% labels RGB | SimCLR `0.9658` vs scratch `0.8388` |
-| 20% labels RGB | SimCLR `0.9310` vs scratch `0.7745` |
-| 10% labels RGB | SimCLR `0.8791` vs scratch `0.6844` |
-
-### Best evidence of remaining shortcut risk
-
-| Condition | Evidence |
-|---|---|
-| Full-label scratch stain/color drop | `0.4245` |
-| Full-label SimCLR stain/color drop | `0.2639` |
-| 50% low-label SimCLR stain/color drop | `0.2446` |
-| Pool B construction | heuristic negative-crop generation, not expert-cleaned labels |
-| XAI failure case `A__positive_20__0009` | RGB SimCLR flips from about `0.024` clean to near `0.98` under mild stain/color perturbation |
-
-## Study Limitations
-
-The current repository supports strong methodological conclusions, but several caveats remain essential:
-
-1. Pool B non-sickled crops are heuristic labels rather than cell-by-cell expert annotations.
-2. Positive boxes were reconstructed from raster overlays rather than original coordinate files.
-3. Real stain metadata is not present in the current manifests.
-4. Robustness results are synthetic perturbation tests, not external hospital or device transfer studies.
-5. The XAI analysis is qualitative and based on a small representative sample set rather than a large-scale attribution benchmark.
-
-## Final Conclusion
-
-The repository has successfully built a complete crop-level sickle-cell morphology pipeline from raw Uganda smartphone microscopy data through robust downstream evaluation. The most defensible scientific conclusion is:
-
-**In-domain self-supervised learning is clearly useful in this pipeline, especially when labeled data are limited, but ImageNet fine-tuning remains the strongest overall RGB baseline, and the combined robustness-plus-XAI evidence indicates that the RGB SimCLR branch still relies partly on stain/color/context shortcuts.**
-
-## Primary Artifact Map
-
-The most important files for inspection and reuse are:
-
-- `eda_outputs/stage1_data_audit.md`
-- `split_outputs/stage2_split_protocol.md`
-- `crop_outputs/stage3_crop_creation.md`
-- `stage4_outputs/stage4_binary_classifier.md`
-- `stage5_outputs/stage5_report.md`
-- `stage6_outputs/stage6_report.md`
-- `stage7_outputs/stage7_report.md`
-- `stage7_low_label_outputs/stage7_low_label_report.md`
-- `visual_reports/stage5_stage6_stage7/visual_summary.md`
-- `docs/COMPLETE_SCIENTIFIC_REPORT.md`
+# Phase 5: Execute Controlled Interventions (T_border, T_control, T_plasma)
+python evaluate_experiment3_interventions.py
+
+# Phase 6: Execute Forensic Failure Analysis & Outlier Visual Adjudication
+python run_experiment3_1_failure_analysis.py
+```
+
+### Deterministic Artifact Hashes
+| Artifact File | Description | SHA-256 Checksum |
+|---|---|---|
+| `crop_outputs/pool_a_labeled_sickled_manifest.csv` | Labeled sickled manifest (1,249 crops) | `1e849ffd8350578e192948e1d0907699491c228ba1de6a96ff234f00d7c81d27` |
+| `crop_outputs/pool_b_labeled_non_sickled_manifest.csv` | Labeled non-sickled manifest (1,468 crops) | `61fab3f079a4d9650f51f1646b364499275f3d73c255859b971f9c95bc6cf9eb` |
+| `experiment_3_reference_outputs/best_model.pt` | Reference ResNet-18 frozen weights | `83cd725076f60899bea0dfe4b7bbaa729ff82a60293b4e799d3082a6ae0419bb` |
+
+---
+
+## 12. Data Protection, Governance & Public Release Roadmap
+
+- **Current Repository Status**: The code, manifests, and documentation are maintained in a **private research repository**.
+- **Data Protection Compliance**: Raw microscopy slides (`datasets/`) and crop image files (`crop_outputs/**/*.jpg`) are excluded from Git tracking via `.gitignore`.
+- **Pre-Publication Image Audit**: In addition to untracking new outlier panels, an audit ([`MICROSCOPY_IMAGE_TRACKING_AUDIT.md`](file:///Users/shubhdeepdas/Documents/Code/Research_Nagercoil_Projects/sickel_cell_ssl/MICROSCOPY_IMAGE_TRACKING_AUDIT.md)) identified 137 historical microscopy-derived visualization files currently tracked in the Git tree and prior commit history.
+- **Public Release Roadmap**: Before transitioning the repository to public access, either:
+  1. A formal redistribution-rights review must confirm permission to host derived crop visualizations under the original Soroti University Kaggle license; or
+  2. A Git history prune (via `git-filter-repo` or BFG) must remove historical image binaries from prior commits while preserving all commit logs, source scripts, manifests, and technical reports.
+
+---
+
+## Primary Research Reports
+- **Complete Technical Manuscript**: [`RESEARCH_MANUSCRIPT.md`](file:///Users/shubhdeepdas/Documents/Code/Research_Nagercoil_Projects/sickel_cell_ssl/RESEARCH_MANUSCRIPT.md)
+- **Reference Model Provenance & Training Report**: [`experiment_3_reference_outputs/EXPERIMENT_3_REFERENCE_MODEL_REPORT.md`](file:///Users/shubhdeepdas/Documents/Code/Research_Nagercoil_Projects/sickel_cell_ssl/experiment_3_reference_outputs/EXPERIMENT_3_REFERENCE_MODEL_REPORT.md)
+- **Controlled Intervention Report**: [`experiment_3_reference_outputs/EXPERIMENT_3_INTERVENTION_REPORT.md`](file:///Users/shubhdeepdas/Documents/Code/Research_Nagercoil_Projects/sickel_cell_ssl/experiment_3_reference_outputs/EXPERIMENT_3_INTERVENTION_REPORT.md)
+- **Forensic Failure Analysis & Audit**: [`experiment_3_reference_outputs/EXPERIMENT_3_1_AUDIT_REPORT.md`](file:///Users/shubhdeepdas/Documents/Code/Research_Nagercoil_Projects/sickel_cell_ssl/experiment_3_reference_outputs/EXPERIMENT_3_1_AUDIT_REPORT.md)
+- **Adjudicated Outlier Review CSV**: [`experiment_3_reference_outputs/outlier_visual_audit_adjudication.csv`](file:///Users/shubhdeepdas/Documents/Code/Research_Nagercoil_Projects/sickel_cell_ssl/experiment_3_reference_outputs/outlier_visual_audit_adjudication.csv)
+- **Dataset Specification**: [`crop_outputs/REFERENCE_DATASET_SPECIFICATION.md`](file:///Users/shubhdeepdas/Documents/Code/Research_Nagercoil_Projects/sickel_cell_ssl/crop_outputs/REFERENCE_DATASET_SPECIFICATION.md)
+- **Microscopy Tracking Audit**: [`MICROSCOPY_IMAGE_TRACKING_AUDIT.md`](file:///Users/shubhdeepdas/Documents/Code/Research_Nagercoil_Projects/sickel_cell_ssl/MICROSCOPY_IMAGE_TRACKING_AUDIT.md)
