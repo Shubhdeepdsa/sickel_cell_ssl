@@ -65,7 +65,7 @@ The investigation addresses three questions often conflated in clinical AI liter
 1. **Does the dataset contain an unintended shortcut?**  
    **Yes.** Non-sickled crops disproportionately sample peripheral slide coordinates, containing dark microscope aperture borders in **35.4%** of crops compared to only **10.0%** of sickled crops (difference: **25.3 percentage points**, 95% source-cluster bootstrap CI: $[20.1\%, 30.6\%]$).
 2. **Can a classifier exploit that shortcut?**  
-   **Yes.** Restricted-feature classifiers trained strictly on the outer 15% crop margin achieve **67.9% balanced accuracy** (and **79.9%** at the source-image level), well above chance, without examining the central erythrocyte.
+   **Yes.** Restricted-feature classifiers trained strictly on the outer 15% crop margin achieve **67.9% balanced accuracy** (and **79.9%** at the source-image level under default threshold), well above chance, without examining the central erythrocyte.
 3. **Did the trained reference model depend on that shortcut?**  
    **The interventions did not establish substantial differential dependence on the tested aperture border on average.** Removing borders from border-bearing crops produced a mean probability shift ($+0.045$) virtually identical to matched control edits on clean crops ($+0.047$), yielding a net contrast of $\Delta_{\text{contrast}} = -0.0026$ (95% CI: $[-0.0474, +0.0470]$). However, individual predictions exhibited sensitivity to general peripheral image modifications (14.4% of negatives with $|\Delta P| > 0.10$, predominantly due to peripheral cell clipping).
 
@@ -74,8 +74,9 @@ The investigation addresses three questions often conflated in clinical AI liter
 | Experimental Stage | Core Hypothesis Tested | Key Metric | 95% Source-Cluster CI | Scientific Interpretation |
 |---|---|:---:|:---:|---|
 | **Exp 1.5 Dataset Audit** | Aperture borders are evenly distributed | $\Delta = +25.3\%$ border rate | $[+20.1\%, +30.6\%]$ | **Hypothesis rejected**: Border artifact is strongly class-asymmetric (35.4% vs 10.0%). |
-| **Exp 2 Tier 1 (Stump)** | Border presence predicts sickle label | **61.9%** Balanced Acc | $[55.7\%, 68.5\%]$ | Binary border flag alone yields 92.3% sickled recall and 31.5% specificity. |
-| **Exp 2 Tier 2 (Perimeter)** | Margin features alone are predictive | **67.9%** Balanced Acc | $[60.7\%, 75.1\%]$ | Outer 15% edge statistics predict class (79.9% source-level accuracy) without center cell. |
+| **Exp 2 Tier 1A (Rule)** | Border presence predicts sickle label | **61.9%** Balanced Acc | $[55.7\%, 68.5\%]$ | Simple heuristic rule yields 92.3% sickled recall and 31.5% specificity. |
+| **Exp 2 Tier 1B (Logistic)** | Border probability predicts sickle label | **61.9%** Balanced Acc | $[55.7\%, 68.5\%]$ | Univariate model yields 73.3% source-level acc ($th=0.50$) and 50.0% ($th^*=0.22$). |
+| **Exp 2 Tier 2 (Perimeter)** | Margin features alone are predictive | **67.9%** Balanced Acc | $[60.7\%, 75.1\%]$ | Outer 15% edge statistics predict class (79.9% source-level acc) without center cell. |
 | **Exp 3 Stage 2 (Reference)** | Baseline model achieves high accuracy | **99.5%** Balanced Acc | $[98.8\%, 100.0\%]$ | 402 of 404 test crops and 81 of 81 source images classified correctly under frozen protocol. |
 | **Exp 3 Stage 3 (Intervention)** | Model differentially relies on border | $\Delta_{\text{contrast}} = -0.0026$ | $[-0.0474, +0.0470]$ | **No differential border reliance detected on average**; confidence interval spans zero. |
 | **Exp 3.1 Visual Audit** | Outlier shifts driven by border loss | 16 / 20 outliers border-free | N/A (Descriptive) | **80% of top outliers had no border**; shifts driven by inpainting severing adjacent cells (45%). |
@@ -91,7 +92,7 @@ The investigation addresses three questions often conflated in clinical AI liter
 To ensure rigorous interpretation, four methodological boundaries must be kept in view:
 
 1. **Source-Image Independence vs. Patient-Level Validation**:  
-   The splits enforce strict source-image separation (0% source-image leakage across train, validation, and test sets). However, the Kaggle cohort metadata does not provide verified patient IDs linking individual microscope fields of view. The 81 test files represent 81 distinct microscope fields of view, not 81 independently confirmed patients.
+   The splits enforce strict source-image separation (0% source-image leakage across train, validation, and test sets). However, the public Kaggle cohort metadata does not provide verified patient IDs linking individual microscope fields of view. The 81 test files represent 81 distinct microscope fields of view, not 81 independently confirmed patients.
 2. **Exploratory Protocol Status**:  
    The reference ResNet-18 model was evaluated once under a frozen protocol on the test partition. However, this test partition had been observed during earlier exploratory iterations of the research. These results represent a frozen benchmark on an exploratory cohort, not a prospective external validation study.
 3. **Controlled Perturbation vs. Causal Isolation**:  
@@ -124,13 +125,13 @@ flowchart LR
 - **Positive Crops (Pool A)**: Derived from human annotations where bounding boxes were manually drawn around verified sickled red blood cells.
 - **Negative Crops (Pool B)**: Generated via heuristic connected-component detection on slides designated as "negative/clear." Individual crops inherited the whole-slide diagnostic label without per-cell expert validation.
 
-### Empirical Evidence: Confident Predictions on Empty Plasma Crops
+### Empirical Evidence: Low Sickled Probabilities on Empty Plasma Crops
 During the forensic audit of large prediction shifts (Experiment 3.1), two negative test crops were discovered to contain **no cellular body whatsoever**:
-- `pool_b_116_cand11` (Source: `negative:116`): The crop consists of completely empty background plasma. Despite the total absence of erythrocyte morphology, the reference model assigned a baseline sickled probability of $P = 0.00002$ (**99.998% confident non-sickled**). When the perimeter was modified, the prediction reversed to $P = 0.98972$ ($\Delta P = +0.98970$).
-- `pool_b_122_cand04` (Source: `negative:122`): A second empty plasma crop received a baseline sickled probability of $P = 0.00003$ (**99.997% confident non-sickled**), shifting to $P = 0.30593$ ($\Delta P = +0.30591$) under perimeter intervention.
+- `pool_b_116_cand11` (Source: `negative:116`): The crop consists of completely empty background plasma. Despite the total absence of erythrocyte morphology, the reference model assigned a very low baseline sickled probability of $P \approx 0.00002$. When the perimeter was modified, the prediction shifted to $P = 0.98972$ ($\Delta P = +0.98970$).
+- `pool_b_122_cand04` (Source: `negative:122`): A second empty plasma crop received a baseline sickled probability of $P \approx 0.00003$, shifting to $P = 0.30593$ ($\Delta P = +0.30591$) under perimeter intervention.
 
 ### Scientific Implication
-If a classifier correctly labels an empty plasma crop as "non-sickled" with near-certain probability, its prediction cannot be based on red blood cell morphology. The model is responding to slide-level illumination, staining characteristics, or texture cues.
+Two crops visually adjudicated as lacking identifiable erythrocyte bodies were nevertheless assigned very low sickled probabilities. These observations raise concerns that source-derived labels may reward predictions without requiring the intended cellular morphology. The predictive cues responsible remain unidentified.
 
 > [!CAUTION]
 > **Key Limitation**:  
@@ -153,11 +154,11 @@ To avoid the common pitfall of comparing models across incompatible data pools, 
 | **Test Partition** | 408 crops | 404 crops |
 | **Source-Image Split Integrity** | Strict source-separated (81 test files) | Strict source-separated (81 test files, zero leakage) |
 
-*Variance Explanation*: The +6 candidate difference in Pool B arises from deterministic pure-Python Pillow bounding-box clamping and integer connected-component extraction in Dataset v2, compared to floating-point OpenCV contour threshold rounding in the historical prototype.
+*Variance Explanation*: The 6-crop discrepancy in Pool B (1,462 in Dataset v1 vs 1,468 in Dataset v2) is associated with implementation differences between the historical pipeline (which used custom connected-component extraction and ImageMagick filtering) and the reconstructed reference pipeline (which used pure-Python Pillow-based preprocessing). The candidate boundary selection differences have not been mapped at the individual crop level.
 
 ```mermaid
 flowchart TD
-    RawData["Raw Uganda Smartphone Images<br/>(991 Microscope Fields: Field & Leishman Stains)"]
+    RawData["Raw Uganda Smartphone Images<br/>(569 Source Images / 991 Files: Field & Leishman Stains)"]
 
     subgraph BranchV1 ["Historical Pipeline (Dataset v1: 2,711 Crops)"]
         RawData --> V1Crops["Historical Crop Generation<br/>(1,249 Pool A + 1,462 Pool B)"]
@@ -197,15 +198,16 @@ Negative candidate generation disproportionately sampled peripheral coordinates 
 
 Experiment 2 tested whether shallow classifiers restricted strictly to non-central image characteristics could predict diagnostic labels without inspecting the central erythrocyte:
 
-| Evaluation Tier | Feature Description | Model & Regularization | Test Balanced Accuracy | 95% Source-Cluster CI | Sickled Recall (TPR) | Non-Sickled Spec (TNR) | Source-Level Accuracy |
-|---|---|---|:---:|:---:|:---:|:---:|:---:|
-| **Tier 1: Border Flag** | Single binary border indicator | Decision stump ($th^* = 0.22$) | **61.9%** | [55.7%, 68.5%] | **92.3%** (168/182) | **31.5%** (70/222) | 50.0% |
-| **Tier 2: Perimeter Features** | 12 edge statistics (RGB, luma, gradients) | Regularized Logistic ($C=1.0, th^*=0.51$) | **67.9%** | [60.7%, 75.1%] | **73.6%** (134/182) | **62.2%** (138/222) | **79.9%** |
-| **Tier 3: Background Plasma** | Masked extracellular plasma statistics | Regularized Logistic ($C=10.0, th^*=0.55$) | **64.1%** | [57.8%, 70.3%] | 36.8% (67/182) | 91.4% (203/222) | 70.0% |
+| Evaluation Tier | Feature Description | Model & Regularization | Test Balanced Accuracy | 95% Source-Cluster CI | Sickled Recall (TPR) | Non-Sickled Spec (TNR) | Source-Level Acc ($th=0.50$) | Source-Level Acc ($th=th^*$) |
+|---|---|---|:---:|:---:|:---:|:---:|:---:|:---:|
+| **Tier 1A: Border-Only Rule** | Simple binary border indicator | Decision rule ($P \ge 0.50 \to \text{neg}$) | **61.9%** | [55.7%, 68.5%] | **92.3%** (168/182) | **31.5%** (70/222) | — | — |
+| **Tier 1B: Border Logistic** | Univariate border probability | Logistic Regression ($th^*=0.22$) | **61.9%** | [55.7%, 68.5%] | **92.3%** (168/182) | **31.5%** (70/222) | **73.3%** | **50.0%** ($th^*=0.22$) |
+| **Tier 2: Perimeter Classifier** | 12 edge statistics (RGB, luma, gradients) | Regularized Logistic ($C=1.0, th^*=0.51$) | **67.9%** | [60.7%, 75.1%] | **73.6%** (134/182) | **62.2%** (138/222) | **79.9%** | **79.6%** ($th^*=0.51$) |
+| **Tier 3: Estimated Background** | Masked extracellular plasma statistics | Regularized Logistic ($C=10.0, th^*=0.55$) | **64.1%** | [57.8%, 70.3%] | 36.8% (67/182) | 91.4% (203/222) | **70.0%** | **67.2%** ($th^*=0.55$) |
 
 > [!NOTE]
-> **Perimeter Feature Content**:  
-> The outer 15% margin captures microscope aperture vignetting as well as peripheral erythrocyte packing geometry (neighboring cells grazing the crop boundary). Tier 2 demonstrates that peripheral image information is highly predictive, but that information is not exclusively non-morphological.
+> **Perimeter Feature Content & Decision Thresholds**:  
+> The outer 15% margin captures microscope aperture vignetting as well as peripheral erythrocyte packing geometry (neighboring cells grazing the crop boundary). In Tier 1B, 2, and 3, source-level accuracies are reported under both default ($th=0.50$) and validation-tuned thresholds ($th=th^*$). Tier 2 demonstrates that peripheral image information is highly predictive, but that information is not exclusively non-morphological.
 
 ---
 
@@ -279,12 +281,12 @@ The 20 largest prediction shifts ($|\Delta P| > 0.10$) were individually examine
 
 | Adjudicated Category | Outlier Count | Proportion of Audited Outliers | Affected Crops | Empirical Mechanism |
 |---|---:|:---:|---|---|
-| **Peripheral Cell Clipping** | 9 | **45.0%** | `pool_b_89_cand04`, `128_cand04`, `37_cand09`, `66_cand09`, `108_cand02`, `133_cand01`, `108_cand04`, `108_cand12`, `49_cand10` | Neighboring erythrocytes graze the outer margin; inpainting severs cell contours, producing irregular edges that mimic sickle morphology. |
-| **Aperture Border Removal** | 4 | **20.0%** | `pool_b_96_cand07`, `147_cand01`, `96_cand10`, `147_cand02` | True aperture borders removed; inpainting replaces dark circular arcs with synthetic plasma, shifting prediction toward sickled. |
-| **Threshold Boundary Cases** | 3 | **15.0%** | `pool_b_91_cand05`, `91_cand07`, `91_cand08` | High baseline non-sickled certainty with minor peripheral crowding; moderate probability shifts ($0.10 \le \Delta P \le 0.16$). |
-| **Empty Plasma Crops** | 2 | **10.0%** | `pool_b_116_cand11`, `122_cand04` | Crops contain zero erythrocyte body; baseline prediction relied entirely on background cues; inpainting altered plasma texture. |
-| **Subthreshold Border / Crowding** | 1 | **5.0%** | `pool_b_96_cand06` | Faint partial arc combined with dense adjacent cell crowding. |
-| **Faint Crop Boundary Erasure** | 1 | **5.0%** | `pool_b_147_cand03` | Inpainting smoothed low-contrast background gradient near image boundary. |
+| **Peripheral Cell Clipping** | 9 | **45.0%** | `pool_b_89_cand04`, `pool_b_128_cand04`, `pool_b_37_cand09`, `pool_b_66_cand09`, `pool_b_108_cand02`, `pool_b_133_cand01`, `pool_b_108_cand04`, `pool_b_108_cand12`, `pool_b_49_cand10` | Neighboring erythrocytes graze the outer margin; inpainting severs cell contours, producing irregular edges that mimic sickle morphology. |
+| **Aperture Border Removal** | 4 | **20.0%** | `pool_b_96_cand07`, `pool_b_147_cand01`, `pool_b_96_cand10`, `pool_b_92_cand11` | True aperture borders removed; inpainting replaces dark circular arcs with synthetic plasma, shifting prediction toward sickled. |
+| **Threshold Boundary Cases** | 3 | **15.0%** | `pool_b_37_cand06`, `pool_b_56_cand12`, `pool_b_37_cand03` | Border-free non-sickled crops where perimeter replacement produced moderate negative probability shifts (-0.47 to -0.22) across decision boundary. |
+| **Empty Plasma Crops** | 2 | **10.0%** | `pool_b_116_cand11`, `pool_b_122_cand04` | Crops contain zero erythrocyte body; baseline prediction relied entirely on background cues; inpainting altered plasma texture. |
+| **Subthreshold Border / Crowding** | 1 | **5.0%** | `pool_b_108_cand03` | Faint partial arc combined with dense adjacent cell crowding. |
+| **Faint Crop Boundary Erasure** | 1 | **5.0%** | `pool_a_399_box1` | Sickled crop where inpainting smoothed low-contrast background gradient near crop boundary. |
 
 > [!IMPORTANT]
 > **Key Visual Finding**:  
@@ -330,7 +332,7 @@ datasets/
 └── Negative/
     └── Clear/          # 147 unlabelled non-sickled control images
 ```
-*Total Image Count*: **991 raw microscopy images** across Field and Leishman stains.
+*Total Image Files*: **991 image files** representing **569 distinct microscope source-image fields** (422 positive fields in labelled and unlabelled pairs, and 147 negative control fields) across Field and Leishman stains.
 
 ### 10.3 Pipeline Execution Workflow
 
@@ -364,7 +366,12 @@ To verify that local reproduction matches the verified audit, compare against th
 | `crop_outputs/pool_b_labeled_non_sickled_manifest.csv` | Labeled non-sickled manifest (1,468 crops) | `61fab3f079a4d9650f51f1646b364499275f3d73c255859b971f9c95bc6cf9eb` |
 | `experiment_3_reference_outputs/best_model.pt` | Reference ResNet-18 frozen weights | `83cd725076f60899bea0dfe4b7bbaa729ff82a60293b4e799d3082a6ae0419bb` |
 
-*Note on Model Weights*: `best_model.pt` is excluded from Git tracking via `.gitignore` to comply with repository size guidelines. Running Step 4 reproduces the model weights.
+> [!NOTE]
+> **Model Weights & Determinism**:  
+> `best_model.pt` is excluded from Git tracking via `.gitignore` to comply with repository size guidelines. The published checkpoint hash identifies the original Experiment 3 reference model artifact. Retraining with the documented configuration reproduces the experimental procedure, but may not produce bit-for-bit identical weights or metrics across different hardware architectures, PyTorch versions, or operating systems due to floating-point nondeterminism.
+>
+> **Visual Adjudication Reporting**:  
+> `run_experiment3_1_failure_analysis.py` executes the automated failure analysis calculations, computes prediction shifts, and generates visual outlier comparison panels. For qualitative visual classification, the script merges these metrics with the human visual audit logged in `experiment_3_reference_outputs/outlier_visual_audit_adjudication.csv` to format the final audit report.
 
 ---
 
@@ -372,7 +379,7 @@ To verify that local reproduction matches the verified audit, compare against th
 
 ### Repository Status & Image Governance
 - **Current Status**: Private research workspace.
-- **Microscopy Image Audit**: An internal audit ([`MICROSCOPY_IMAGE_TRACKING_AUDIT.md`](MICROSCOPY_IMAGE_TRACKING_AUDIT.md)) identified 137 historical microscopy visualization images committed during earlier development phases. Redistribution permissions under the original Kaggle CC-BY 4.0 license are currently under legal review.
+- **Microscopy Image Audit**: An internal audit ([`MICROSCOPY_IMAGE_TRACKING_AUDIT.md`](MICROSCOPY_IMAGE_TRACKING_AUDIT.md)) identified 137 historical microscopy visualization images committed during earlier development phases. Redistribution permissions under the original Kaggle CC-BY 4.0 license remain pending verification prior to public release.
 - **Public Release Roadmap**: Prior to public release, an external release branch will prune historical image binary blobs from Git history (via `git filter-repo`), distributing only source scripts, manifests, and synthetic tabular reports.
 
 ### Primary Technical Reports
@@ -394,4 +401,4 @@ To verify that local reproduction matches the verified audit, compare against th
 ---
 
 ### License
-The source code, scripts, manifests, and documentation in this repository are licensed under the [MIT License](LICENSE). Primary microscopy imagery and raw annotations remain subject to the original Creative Commons Attribution 4.0 International (CC-BY 4.0) license of the Uganda Sickle Cell Disease Dataset.
+The source code, scripts, manifests, and documentation in this repository are licensed under the [MIT License](LICENSE). Primary microscopy imagery and raw annotations remain subject to the original Creative Commons Attribution 4.0 International (CC-BY 4.0) license of the Uganda Sickle Cell Disease Dataset (Florence Tushabe et al., Soroti University / Makerere University, Uganda, 2023).

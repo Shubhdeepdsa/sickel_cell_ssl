@@ -25,7 +25,7 @@ SOFTWARE.
 ### Dataset & Third-Party Asset Notice
 This repository contains code for experimental pipelines and data verification.
 The underlying raw microscopy images and primary annotations are derived from the
-Uganda Sickle Cell Disease Dataset (Florence Tushabe, Makerere University, 2023),
-which is licensed under Creative Commons Attribution 4.0 International (CC-BY 4.0).
-Third-party pretrained model weights (ImageNet ResNet-18) are subject to torchvision's
-model zoo distribution terms.
+Uganda Sickle Cell Disease Dataset (Florence Tushabe et al., Soroti University /
+Makerere University, Uganda, 2023), which is distributed under Creative Commons
+Attribution 4.0 International (CC-BY 4.0). Third-party pretrained model weights
+(ImageNet ResNet-18) are subject to torchvision's model zoo distribution terms.
