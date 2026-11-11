@@ -85,6 +85,9 @@ def test_dataset_counts_and_metrics() -> None:
     # 6. Controlled intervention contrast
     assert "-0.0026" in readme_text, "Missing -0.0026 intervention contrast in README"
 
+    # 7. Historical Stage 4 baseline consistency
+    assert "84.8%" in readme_text, "Missing 84.8% Stage 4 baseline in README"
+
     print("[PASS] test_dataset_counts_and_metrics: Key dataset counts and metrics strictly verified.")
 
 

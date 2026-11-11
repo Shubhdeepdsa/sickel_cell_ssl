@@ -91,8 +91,8 @@ The investigation addresses three questions often conflated in clinical AI liter
 
 To ensure rigorous interpretation, four methodological boundaries must be kept in view:
 
-1. **Source-Image Independence vs. Patient-Level Validation**:  
-   The splits enforce strict source-image separation (0% source-image leakage across train, validation, and test sets). However, the public Kaggle cohort metadata does not provide verified patient IDs linking individual microscope fields of view. The 81 test files represent 81 distinct microscope fields of view, not 81 independently confirmed patients.
+1. **Source-Image Independence vs. Patient-Level & Smear-Level Validation**:  
+   Partitions enforce strict source-image identifier separation (no crops from the same image file appear in both training and testing). However, as reported in the original dataset publication (Tushabe et al., 2024), the 569 source images originated from approximately 140 blood samples across two staining preparations (Field and Leishman) with multiple fields of view photographed per smear. Furthermore, Field stain accounts for approximately 43% of positive images versus 62% of negative images. Therefore, while source-image identifier overlap is eliminated, biological independence at the patient, smear, and staining levels remains unverified due to metadata limitations in the public release.
 2. **Exploratory Protocol Status**:  
    The reference ResNet-18 model was evaluated once under a frozen protocol on the test partition. However, this test partition had been observed during earlier exploratory iterations of the research. These results represent a frozen benchmark on an exploratory cohort, not a prospective external validation study.
 3. **Controlled Perturbation vs. Causal Isolation**:  
@@ -163,7 +163,7 @@ flowchart TD
     subgraph BranchV1 ["Historical Pipeline (Dataset v1: 2,711 Crops)"]
         RawData --> V1Crops["Historical Crop Generation<br/>(1,249 Pool A + 1,462 Pool B)"]
         V1Crops --> V1Split["Historical Splits (1,917 Train / 408 Test)"]
-        V1Split --> S4["Stage 4: Logistic Baseline (87.8%)"]
+        V1Split --> S4["Stage 4: Logistic Baseline (84.8%)"]
         V1Split --> S5["Stage 5: Supervised vs SimCLR (98.5%)"]
         V1Split --> S6["Stage 6: Low-Label Sweeps (10%-100%)"]
         V1Split --> S7["Stage 7: Smartphone Corruptions"]
@@ -217,13 +217,13 @@ Prior to the artifact audit, the project investigated self-supervised representa
 
 | Model Family | Pretraining Scheme | Training Crops | Test Balanced Accuracy | Test Raw Accuracy | Test ROC AUC |
 |---|---|:---:|:---:|:---:|:---:|
-| **Classical Logistic** | Pixel Flattening + L2 | 1,917 | 87.8% | 88.1% | 0.957 |
+| **Classical Logistic** | Pixel Flattening + L2 | 1,917 | **84.8%** | **85.0%** | **0.899** |
 | **ResNet-18 (Scratch)** | Random initialization | 1,917 | 93.1% | 93.3% | 0.981 |
 | **ResNet-18 (SimCLR)** | In-domain contrastive pretraining | 1,917 | 98.5% | 98.5% | 0.998 |
 | **ResNet-18 (ImageNet)** | Torchvision ImageNet-1K | 1,917 | **98.6%** | **98.8%** | **0.999** |
 
 ### Key Historical Observations
-1. **Low-Label Regimes (Stage 6)**: In-domain SimCLR demonstrated substantial gains over training from scratch when labeled data was severely restricted (+5.4% at 100% labels $\to$ **+19.5% at 10% labels**). However, ImageNet fine-tuning matched or exceeded SimCLR across all sample regimes.
+1. **Low-Label Regimes (Stage 6)**: When downstream diagnostic labels were restricted during fine-tuning, in-domain SimCLR demonstrated substantial gains over training from scratch (+5.3% at 100% labels $\to$ **+27.7% at 10% labels on grayscale** [91.9% vs 64.2%]; **+19.5% on RGB** [87.9% vs 68.4%]). Note that the SSL pretraining pool included crops that were already localized via bounding boxes, so this measures downstream label efficiency rather than a 90% reduction in localization annotation effort. Furthermore, ImageNet transfer learning remained the strongest overall baseline across all label regimes (achieving 96.3% on grayscale with 10% labels).
 2. **Perturbation Robustness (Stage 7)**: Models showed resilience against Gaussian blur and JPEG compression, but exhibited acute sensitivity to chromatic stain shifts.
 3. **Attribution Artifacts**: Saliency analysis (Grad-CAM and occlusion sensitivity) revealed attribution hotspots extending into background plasma, prompting the subsequent confound audit.
 
@@ -278,6 +278,10 @@ Large prediction shifts occurred at virtually identical rates regardless of whet
 
 ### Adjudicated Visual Taxonomy of the 20 Outlier Predictions
 The 20 largest prediction shifts ($|\Delta P| > 0.10$) were individually examined and logged in [`outlier_visual_audit_adjudication.csv`](experiment_3_reference_outputs/outlier_visual_audit_adjudication.csv). These proportions describe the **20 audited outlier cases**, not a population-wide error rate across all crops:
+
+> [!NOTE]
+> **Adjudication Provenance**:  
+> This visual taxonomy represents an AI-assisted exploratory audit conducted by the authors to categorize observed image modifications and formulate qualitative failure hypotheses. It does not constitute independent clinical validation by a board-certified hematologist.
 
 | Adjudicated Category | Outlier Count | Proportion of Audited Outliers | Affected Crops | Empirical Mechanism |
 |---|---:|:---:|---|---|
@@ -391,12 +395,14 @@ To verify that local reproduction matches the verified audit, compare against th
 - **Dataset Specification Document**: [`crop_outputs/REFERENCE_DATASET_SPECIFICATION.md`](crop_outputs/REFERENCE_DATASET_SPECIFICATION.md)
 
 ### Scholarly Bibliography
-1. **Tushabe, F., Mwesige, S., Kasule, V., Areu, D., Mutabazi, P., Nsimire, E., Musani, S. C., & Othieno, E.** (2023). *Uganda Sickle Cell Disease Dataset*. Kaggle. https://doi.org/10.34740/KAGGLE/DSV/6817290
+1. **Tushabe, F., Mwesige, S., Kasule, V., Areu, D., Mutabazi, P., Nsimire, E., Musani, S. C., & Othieno, E.** (2024). *Uganda Sickle Cell Disease Dataset*. Acta Scientific Microbiology, 7(7), 54-61. Dataset: Kaggle, https://doi.org/10.34740/KAGGLE/DSV/6817290
 2. **Geirhos, R., Jacobsen, J. H., Michaelis, C., Zemel, R., Brendel, W., Bethge, M., & Wichmann, F. A.** (2020). *Shortcut learning in deep neural networks*. Nature Machine Intelligence, 2(11), 665-673.
 3. **Badgeley, M. A., Zech, J. R., Oakden-Rayner, L., Glicksberg, B. S., Liu, M., Gale, W., McConnell, M. V., Percha, B., Snyder, T. M., & Dudley, J. T.** (2019). *Deep learning predicts hip fracture using confounding patient and radiologic variables*. npj Digital Medicine, 2(1), 31.
 4. **DeGrave, A. J., Janizek, J. D., & Lee, S. I.** (2021). *AI for radiographic COVID-19 detection frequently relies on superficial shortcuts*. Nature Machine Intelligence, 3(7), 610-619.
-5. **Chen, T., Kornblith, S., Norouzi, M., & Hinton, G.** (2020). *A simple framework for contrastive learning of visual representations (SimCLR)*. International Conference on Machine Learning (ICML), 1597-1607.
-6. **He, K., Zhang, X., Ren, S., & Sun, J.** (2016). *Deep residual learning for image recognition*. IEEE Conference on Computer Vision and Pattern Recognition (CVPR), 770-778.
+5. **Hooker, S., Erhan, D., Kindermans, P. J., & Been, K.** (2019). *A benchmark for interpretability methods*. Advances in Neural Information Processing Systems (NeurIPS), 32.
+6. **Rong, Y., Leemann, T., Borisov, V., Kasneci, G., & Kasneci, E.** (2022). *A consistent and efficient evaluation strategy for attribution methods*. International Conference on Machine Learning (ICML), 18770-18795.
+7. **Chen, T., Kornblith, S., Norouzi, M., & Hinton, G.** (2020). *A simple framework for contrastive learning of visual representations (SimCLR)*. International Conference on Machine Learning (ICML), 1597-1607.
+8. **He, K., Zhang, X., Ren, S., & Sun, J.** (2016). *Deep residual learning for image recognition*. IEEE Conference on Computer Vision and Pattern Recognition (CVPR), 770-778.
 
 ---
 
